@@ -10,5 +10,6 @@ dependencies:
 test:
   pre:
     - dotnet --version
-  override:
     - dotnet build ./firenotes-api.sln
+  override:
+    - dotnet test
