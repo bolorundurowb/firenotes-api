@@ -12,4 +12,4 @@ test:
     - dotnet --version
     - dotnet build ./firenotes-api.sln
   override:
-    - dotnet test
+    - dotnet test firenotes-api.Tests
