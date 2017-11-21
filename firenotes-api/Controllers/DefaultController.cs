@@ -11,7 +11,7 @@ namespace firenotes_api.Controllers
         [Route("/")]
         public string Root()
         {
-            return $"{response} Start by making requests to the /api routes";
+            return $"{response} Start by making requests to the /api routes.";
         }
         
         // GET
