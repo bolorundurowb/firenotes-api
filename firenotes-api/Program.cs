@@ -8,8 +8,8 @@ namespace firenotes_api
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
             DotEnv.Config(false, "./../../../.env");
+            BuildWebHost(args).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
