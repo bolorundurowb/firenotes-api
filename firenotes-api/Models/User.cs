@@ -12,13 +12,14 @@ namespace firenotes_api.Models
          
          public string Username { get; set; }
          
-         public string HashedPassword { get; }
+         public string HashedPassword { get; private set; }
 
          public string Password
          {
              set
              {
-                 
+                 var salt = BCrypt.Net.BCrypt.GenerateSalt();
+                 HashedPassword = BCrypt.Net.BCrypt.HashPassword(value, salt);
              }
          }
      }
