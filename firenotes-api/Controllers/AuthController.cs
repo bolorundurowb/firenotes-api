@@ -44,6 +44,8 @@ namespace firenotes_api.Controllers
             {
                 return Unauthorized();
             }
+
+            return Ok(user);
         }
     }
 }
