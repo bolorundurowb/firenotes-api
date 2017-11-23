@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using MongoDB.Bson.Serialization.Attributes;
 using shortid;
 
-namespace firenotes_api.Models
+namespace firenotes_api.Models.Data
  {
      public class Note
      {
