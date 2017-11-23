@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using dotenv.net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +11,7 @@ namespace firenotes_api
     {
         public Startup(IConfiguration configuration)
         {
+            DotEnv.Config();
             Configuration = configuration;
         }
 

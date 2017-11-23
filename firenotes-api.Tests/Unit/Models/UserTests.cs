@@ -4,13 +4,13 @@ using Xunit;
 
 namespace firenotes_api.Tests.Models
 {
-    public class Note_Tests
+    public class UserTests
     {
         [Fact]
         public void ShouldAutoGenerateId()
         {
-            var note = new Note();
-            note.Id.Should().NotBeNullOrWhiteSpace();
+            var user = new User();
+            user.Id.Should().NotBeNullOrWhiteSpace();
         }
     }
 }

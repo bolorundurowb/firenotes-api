@@ -4,7 +4,7 @@ using Xunit;
 
 namespace firenotes_api.Tests.Unit.Configuration
 {
-    public class Config_Tests
+    public class ConfigTests
     {
         [Fact(Skip = "I have to figure out a way to test this properly")]
         public void TheConfigPropertiesAreNotEmply()

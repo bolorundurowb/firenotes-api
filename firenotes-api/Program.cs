@@ -1,5 +1,4 @@
-﻿using dotenv.net;
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
 namespace firenotes_api
@@ -8,7 +7,6 @@ namespace firenotes_api
     {
         public static void Main(string[] args)
         {
-            DotEnv.Config(false, "./../../../.env");
             BuildWebHost(args).Run();
         }
 

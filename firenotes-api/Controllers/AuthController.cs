@@ -31,12 +31,17 @@ namespace firenotes_api.Controllers
         [Route("login"), HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginBindingModel data)
         {
+            if (data == null)
+            {
+                return BadRequest("The payload must not be null.");
+            }
+            
             if (string.IsNullOrWhiteSpace(data.Email))
             {
                 return BadRequest("An email address is required.");
             }
 
-            if (string.IsNullOrEmpty(data.Password))
+            if (string.IsNullOrWhiteSpace(data.Password))
             {
                 return BadRequest("A password is required.");
             }
