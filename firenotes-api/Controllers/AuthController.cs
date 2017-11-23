@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AutoMapper;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
+using firenotes_api.Models.View;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
@@ -11,9 +13,11 @@ namespace firenotes_api.Controllers
     public class AuthController : Controller
     {
         private IMongoDatabase _mongoDatabase;
+        private IMapper _mapper;
 
-        public AuthController()
+        public AuthController(IMapper mapper)
         {
+            _mapper = mapper;
             var dbPath = Environment.GetEnvironmentVariable("MONGO_URL");
             var mongoClient = new MongoClient(dbPath);
             _mongoDatabase = mongoClient.GetDatabase("firenotesdb");
@@ -45,7 +49,7 @@ namespace firenotes_api.Controllers
                 return Unauthorized();
             }
 
-            return Ok(user);
+            return Ok(_mapper.Map<AuthViewModel>(user));
         }
     }
 }
