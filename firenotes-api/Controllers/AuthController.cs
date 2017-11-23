@@ -64,6 +64,47 @@ namespace firenotes_api.Controllers
             return Ok(result);
         }
 
+        // POST api/auth/signup
+        [Route("signup"), HttpPost]
+        public async Task<IActionResult> SignUp([FromBody] SignUpBindingModel data)
+        {
+            if (data == null)
+            {
+                return BadRequest("The payload must not be null.");
+            }
+            
+            if (string.IsNullOrWhiteSpace(data.Email))
+            {
+                return BadRequest("An email address is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(data.Password))
+            {
+                return BadRequest("A password is required.");
+            }
+
+            if (data.Password.Length < 8)
+            {
+                return BadRequest("The password must be greater than 7 characters.");
+            }
+            
+            var user = new User
+            {
+                FirstName = data.FirstName,
+                LastName = data.LastName,
+                Email = data.Email,
+                Password = data.Password
+            };
+            
+            var usersCollection = _mongoDatabase.GetCollection<User>("users");
+            await usersCollection.InsertOneAsync(user);
+            
+            var token = GenerateAuthToken(user.Id);
+            var result = _mapper.Map<AuthViewModel>(user);
+            result.Token = token;
+            return Ok(result);
+        }
+
         private string GenerateAuthToken(string id)
         {
             var payload = new Dictionary<string, string>
