@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using firenotes_api.Configuration;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
 using firenotes_api.Models.View;
+using JWT;
+using JWT.Algorithms;
+using JWT.Serializers;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
@@ -18,7 +23,7 @@ namespace firenotes_api.Controllers
         public AuthController(IMapper mapper)
         {
             _mapper = mapper;
-            var dbPath = Environment.GetEnvironmentVariable("MONGO_URL");
+            var dbPath = Config.DbPath;
             var mongoClient = new MongoClient(dbPath);
             _mongoDatabase = mongoClient.GetDatabase("firenotesdb");
         }
@@ -49,7 +54,27 @@ namespace firenotes_api.Controllers
                 return Unauthorized();
             }
 
-            return Ok(_mapper.Map<AuthViewModel>(user));
+            var token = GenerateAuthToken(user.Id);
+            var result = _mapper.Map<AuthViewModel>(user);
+            result.Token = token;
+            return Ok(result);
+        }
+
+        private string GenerateAuthToken(string id)
+        {
+            var payload = new Dictionary<string, string>
+            {
+                {"id", id}
+            };
+            var secret = Config.Secret;
+            
+            IJwtAlgorithm algorithm = new HMACSHA256Algorithm();
+            IJsonSerializer serializer = new JsonNetSerializer();
+            IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
+            IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
+
+            var token = encoder.Encode(payload, secret);
+            return token;
         }
     }
 }
