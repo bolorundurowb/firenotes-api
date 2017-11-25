@@ -22,7 +22,57 @@ namespace firenotes_api.Tests.Integration
 
         #region SignUp
 
-        
+        [Fact]
+        public async void BadReqestIfTheSignUpPayloadIsNull()
+        {
+            StringContent stringContent = new StringContent(
+                "",
+                UnicodeEncoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/auth/signup", stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("The payload must not be null.");
+        }
+
+        [Fact]
+        public async void BadReqestIfTheSignUpEmailIsNull()
+        {
+            StringContent stringContent = new StringContent(
+                "{ \"email\": \"  \" }",
+                UnicodeEncoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/auth/signup", stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("An email address is required.");
+        }
+
+        [Fact]
+        public async void BadReqestIfTheSignUpPasswordIsNull()
+        {
+            StringContent stringContent = new StringContent(
+                "{ \"email\": \"name@email.com\", \"password\": \"  \" }",
+                UnicodeEncoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/auth/signup", stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("A password is required.");
+        }
+
+        [Fact]
+        public async void BadReqestIfTheSignUpPasswordIsLessThanEightCharacters()
+        {
+            StringContent stringContent = new StringContent(
+                "{ \"email\": \"name@email.com\", \"password\": \"12345\" }",
+                UnicodeEncoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/auth/signup", stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("The password cannot be less than 8 characters.");
+        }
 
         #endregion
 

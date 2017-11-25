@@ -8,6 +8,7 @@ using firenotes_api.Models.View;
 using JWT;
 using JWT.Algorithms;
 using JWT.Serializers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
@@ -85,18 +86,30 @@ namespace firenotes_api.Controllers
 
             if (data.Password.Length < 8)
             {
-                return BadRequest("The password must be greater than 7 characters.");
+                return BadRequest("The password cannot be less than 8 characters.");
+            }
+
+
+            var usersCollection = _mongoDatabase.GetCollection<User>("users");
+            var user = await usersCollection.Find(x => x.Email == data.Email).FirstOrDefaultAsync();
+
+            if (user != null)
+            {
+                var response = new ContentResult
+                {
+                    StatusCode = StatusCodes.Status409Conflict,
+                    Content = "Sorry, a user with that email already exists."
+                };
+                return response;
             }
             
-            var user = new User
+            user = new User
             {
                 FirstName = data.FirstName,
                 LastName = data.LastName,
                 Email = data.Email,
                 Password = data.Password
             };
-            
-            var usersCollection = _mongoDatabase.GetCollection<User>("users");
             await usersCollection.InsertOneAsync(user);
             
             var token = GenerateAuthToken(user.Id);
