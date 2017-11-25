@@ -15,8 +15,10 @@ namespace firenotes_api.Tests.Integration
 
         public AuthControllerTests()
         {
-            _server = new TestServer(new WebHostBuilder()
-                .UseStartup<Startup>());
+            var webBuilder = new WebHostBuilder()
+                .UseEnvironment("test")
+                .UseStartup<Startup>();
+            _server = new TestServer(webBuilder);
             _client = _server.CreateClient();
         }
 
