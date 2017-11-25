@@ -25,7 +25,7 @@ namespace firenotes_api.Controllers
             _mapper = mapper;
             var dbPath = Config.DbPath;
             var mongoClient = new MongoClient(dbPath);
-            _mongoDatabase = mongoClient.GetDatabase("firenotesdb");
+            _mongoDatabase = mongoClient.GetDatabase(Startup.DatabaseName);
         }
         
         // POST api/auth/login

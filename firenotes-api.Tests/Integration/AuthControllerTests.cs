@@ -152,7 +152,7 @@ namespace firenotes_api.Tests.Integration
         public async void NotFoundIfTheUserDoesNotExist()
         {
             StringContent stringContent = new StringContent(
-                "{ \"email\": \"name@email.com\", \"password\": \"password\" }",
+                "{ \"email\": \"names@email.com\", \"password\": \"password\" }",
                 UnicodeEncoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/login", stringContent);

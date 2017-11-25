@@ -9,6 +9,8 @@ namespace firenotes_api
 {
     public class Startup
     {
+        public static string DatabaseName;
+        
         public Startup(IConfiguration configuration)
         {
             DotEnv.Config();
@@ -27,9 +29,17 @@ namespace firenotes_api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            DatabaseName = "firenotes-prod-db";
+            
             if (env.IsDevelopment())
             {
+                DatabaseName = "firenotes-dev-db";
                 app.UseDeveloperExceptionPage();
+            }
+
+            if (env.IsEnvironment("test"))
+            {
+                DatabaseName = "firenotes-test-db";
             }
 
             app.UseMvc();
