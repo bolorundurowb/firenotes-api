@@ -7,6 +7,7 @@ using Xunit;
 
 namespace firenotes_api.Tests.Integration
 {
+    [Collection("API Tests")]
     public class DefaultControllerTests
     {
         private readonly TestServer _server;
