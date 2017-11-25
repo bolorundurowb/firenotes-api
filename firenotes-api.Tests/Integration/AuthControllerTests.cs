@@ -86,6 +86,8 @@ namespace firenotes_api.Tests.Integration
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Contain("token");
             responseString.Should().Contain("email");
+            responseString.Should().Contain("firstName");
+            responseString.Should().Contain("lastName");
         }
 
         [Fact]
@@ -155,6 +157,22 @@ namespace firenotes_api.Tests.Integration
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("A user with that email address doesn't exist.");
+        }
+
+        [Fact]
+        public async void SuccessfulLoginWithExistingUser()
+        {
+            StringContent stringContent = new StringContent(
+                "{ \"email\": \"name@email.com\", \"password\": \"12345678\" }",
+                UnicodeEncoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/auth/login", stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Contain("token");
+            responseString.Should().Contain("email");
+            responseString.Should().Contain("firstName");
+            responseString.Should().Contain("lastName");
         }
 
          #endregion
