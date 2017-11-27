@@ -13,6 +13,8 @@ namespace firenotes_api
          public AutomapperConfig()
          {
              CreateMap<User, AuthViewModel>();
+
+             CreateMap<Note, NoteViewModel>();
          }
      }
  }
