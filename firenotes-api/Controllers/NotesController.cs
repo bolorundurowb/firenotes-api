@@ -15,7 +15,6 @@ namespace firenotes_api.Controllers
     {
         private IMongoDatabase _mongoDatabase;
         private IMapper _mapper;
-        private string _callerId;
         
         public NotesController(IMapper mapper)
         {
@@ -29,8 +28,9 @@ namespace firenotes_api.Controllers
         [Route(""), HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            var callerId = HttpContext.Items["id"].ToString();
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
-            var notes = await notesCollection.Find(x => x.Owner == _callerId).ToListAsync();
+            var notes = await notesCollection.Find(x => x.Owner == callerId).ToListAsync();
             return Ok(_mapper.Map<List<NoteViewModel>>(notes));
         }
         
@@ -38,9 +38,9 @@ namespace firenotes_api.Controllers
         [Route("{id}"), HttpGet]
         public async Task<IActionResult> GetOne(string id)
         {
-            Console.WriteLine("Here");
+            var callerId = HttpContext.Items["id"].ToString();
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
-            var note = await notesCollection.Find(x => x.Id == id && x.Owner == _callerId).FirstOrDefaultAsync();
+            var note = await notesCollection.Find(x => x.Id == id && x.Owner == callerId).FirstOrDefaultAsync();
 
             if (note == null)
             {
