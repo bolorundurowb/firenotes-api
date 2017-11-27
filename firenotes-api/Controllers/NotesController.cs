@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Configuration;
@@ -35,8 +36,9 @@ namespace firenotes_api.Controllers
         
         // GET api/notes/:id
         [Route("{id}"), HttpGet]
-        public async Task<IActionResult> GetOne([FromRoute] string id)
+        public async Task<IActionResult> GetOne(string id)
         {
+            Console.WriteLine("Here");
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
             var note = await notesCollection.Find(x => x.Id == id && x.Owner == _callerId).FirstOrDefaultAsync();
 

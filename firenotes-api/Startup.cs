@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using dotenv.net;
+using firenotes_api.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -42,6 +44,8 @@ namespace firenotes_api
                 DatabaseName = "firenotes-test-db";
             }
 
+            app.Map("/api/notes", AuthenticationMiddleware.ValidateUser);
+            
             app.UseMvc();
         }
     }
