@@ -5,21 +5,19 @@ namespace firenotes_api.Middleware
 {
     public class AuthenticationMiddleware
     {
-        public static void ValidateUser(IApplicationBuilder app)
+        private readonly RequestDelegate _next;
+        
+        public AuthenticationMiddleware(RequestDelegate next)
         {
-            app.Use(async (context, next) =>
-            {
-                string token = context.Request.Headers["x-access-token"];
-                if (token == null)
-                {
-                    context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync("Sorry, a token is required to access this route");
-                }
-                else
-                {
-                    await next.Invoke();
-                }
-            });
+            _next = next;
+        }
+    }
+
+    public static class AuthenticationMiddlewareExtensions
+    {
+        public static IApplicationBuilder UseAuthenticationMiddleware(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware<AuthenticationMiddleware>();
         }
     }
 }

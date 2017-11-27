@@ -44,7 +44,7 @@ namespace firenotes_api
                 DatabaseName = "firenotes-test-db";
             }
 
-            app.Map("/api/notes", AuthenticationMiddleware.ValidateUser);
+            app.UseAuthenticationMiddleware();
             
             app.UseMvc();
         }
