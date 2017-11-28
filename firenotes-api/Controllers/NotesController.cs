@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Configuration;
+using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
 using firenotes_api.Models.View;
 using Microsoft.AspNetCore.Mvc;
@@ -48,6 +48,13 @@ namespace firenotes_api.Controllers
             }
             
             return Ok(_mapper.Map<NoteViewModel>(note));
+        }
+
+        [Route(""), HttpPost]
+        public async Task<IActionResult> Create([FromBody] NoteBindingModel data)
+        {
+            var callerId = HttpContext.Items["id"].ToString();
+            return Ok();
         }
     }
 }
