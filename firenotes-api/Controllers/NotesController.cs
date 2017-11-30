@@ -30,7 +30,9 @@ namespace firenotes_api.Controllers
         {
             var callerId = HttpContext.Items["id"].ToString();
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
-            var notes = await notesCollection.Find(x => x.Owner == callerId).ToListAsync();
+            var notes = await notesCollection.Find(x => x.Owner == callerId)
+                .Limit(query.Limit)
+                .ToListAsync();
             return Ok(_mapper.Map<List<NoteViewModel>>(notes));
         }
         
