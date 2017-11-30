@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Configuration;
@@ -31,11 +32,32 @@ namespace firenotes_api.Controllers
         {
             var callerId = HttpContext.Items["id"].ToString();
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
-            var notes = await notesCollection.Find(x => x.Owner == callerId)
+
+            var options = "{Owner: '" + callerId + "'";
+            if (query.Date.Year != 0001)
+            {
+                options +=  ", Created: {$gte: " 
+                            + query.Date.ToShortDateString().Replace("/", "-")
+                            + ", $lt: " 
+                            + query.Date.AddDays(1).ToShortDateString().Replace("/", "-")
+                            + "}";
+            }
+
+            if (query.Tags != null && query.Tags.Length != 0)
+            {
+                options += ", Tags: {$in: [" 
+                           + string.Join(string.Empty, query.Tags.ToArray())
+                           + "]}";
+            }
+
+            options += "}";
+            
+            var notes = await notesCollection.Find(options)
                 .Limit(query.Limit)
                 .Skip(query.Skip)
                 .Sort("{Created: -1}")
                 .ToListAsync();
+            
             return Ok(_mapper.Map<List<NoteViewModel>>(notes));
         }
         
