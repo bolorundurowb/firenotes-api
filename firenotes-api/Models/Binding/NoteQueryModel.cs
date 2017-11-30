@@ -6,7 +6,7 @@ namespace firenotes_api.Models.Binding
     {
         public int Limit { get; set; }
 
-        public string Tag { get; set; }
+        public string[] Tags { get; set; }
 
         public int Skip { get; set; }
 

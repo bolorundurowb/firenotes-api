@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Configuration;
@@ -32,6 +33,8 @@ namespace firenotes_api.Controllers
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
             var notes = await notesCollection.Find(x => x.Owner == callerId)
                 .Limit(query.Limit)
+                .Skip(query.Skip)
+                .Sort("{Created: -1}")
                 .ToListAsync();
             return Ok(_mapper.Map<List<NoteViewModel>>(notes));
         }
@@ -74,6 +77,7 @@ namespace firenotes_api.Controllers
                 Title = data.Title,
                 Details = data.Details,
                 Tags = data.Tags,
+                Created = DateTime.Now,
                 IsFavorited = false
             };
             
