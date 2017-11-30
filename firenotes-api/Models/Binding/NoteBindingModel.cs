@@ -12,7 +12,5 @@ namespace firenotes_api.Models.Binding
         public List<string> Tags { get; set; }
 
         public DateTime Created { get; set; }
-
-        public bool IsFavorited { get; set; }
     }
 }

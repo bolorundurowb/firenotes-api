@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Configuration;
@@ -50,6 +51,7 @@ namespace firenotes_api.Controllers
             return Ok(_mapper.Map<NoteViewModel>(note));
         }
 
+        // POST api/notes
         [Route(""), HttpPost]
         public async Task<IActionResult> Create([FromBody] NoteBindingModel data)
         {
@@ -71,12 +73,46 @@ namespace firenotes_api.Controllers
                 Title = data.Title,
                 Details = data.Details,
                 Tags = data.Tags,
-                IsFavorited = data.IsFavorited
+                IsFavorited = false
             };
             
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
             await notesCollection.InsertOneAsync(note);
             
+            return Ok(_mapper.Map<NoteViewModel>(note));
+        }
+        
+        // PUT api/notes/:id
+        [Route("{id}"), HttpPut]
+        public async Task<IActionResult> Update(string id, [FromBody] NoteBindingModel data)
+        {
+            var callerId = HttpContext.Items["id"].ToString();
+            
+            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
+            var note = await notesCollection.Find(x => x.Id == id && x.Owner == callerId).FirstOrDefaultAsync();
+            
+            if (note == null)
+            {
+                return NotFound("Sorry, you either have no access to the note requested or it doesn't exist.");
+            }
+
+            var filterBuilder = Builders<Note>.Filter;
+            var filter = filterBuilder.Eq("_id", id) & filterBuilder.Eq("owner", callerId);
+
+            var updateBuilder = Builders<Note>.Update;
+            var update = updateBuilder.Set("Tags", data.Tags);
+
+            if (!string.IsNullOrWhiteSpace(data.Title))
+            {
+                update = update.Set("Title", data.Title);
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.Details))
+            {
+                update = update.Set("Details", data.Details);
+            }
+            
+            await notesCollection.UpdateOneAsync(filter, update);
             return Ok(_mapper.Map<NoteViewModel>(note));
         }
     }
