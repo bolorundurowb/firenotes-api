@@ -33,26 +33,23 @@ namespace firenotes_api.Controllers
             var callerId = HttpContext.Items["id"].ToString();
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
 
-            var options = "{Owner: '" + callerId + "'";
+            var filterBuilder = Builders<Note>.Filter;
+            var filter = filterBuilder.Eq("Owner", callerId);
+            
             if (query.Date.Year != 0001)
             {
-                options +=  ", Created: {$gte: " 
-                            + query.Date.ToShortDateString().Replace("/", "-")
-                            + ", $lt: " 
-                            + query.Date.AddDays(1).ToShortDateString().Replace("/", "-")
-                            + "}";
+                filter = filter 
+                             & filterBuilder.Gte(x => x.Created, query.Date)
+                             & filterBuilder.Lt(x => x.Created, query.Date.AddDays(1));
             }
 
-            if (query.Tags != null && query.Tags.Length != 0)
+            if (!string.IsNullOrWhiteSpace(query.Tag))
             {
-                options += ", Tags: {$in: [" 
-                           + string.Join(string.Empty, query.Tags.ToArray())
-                           + "]}";
+                filter = filter
+                         & filterBuilder.AnyEq(x => x.Tags, query.Tag);
             }
-
-            options += "}";
             
-            var notes = await notesCollection.Find(options)
+            var notes = await notesCollection.Find(filter)
                 .Limit(query.Limit)
                 .Skip(query.Skip)
                 .Sort("{Created: -1}")
