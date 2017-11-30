@@ -26,7 +26,7 @@ namespace firenotes_api.Controllers
         
         // GET api/notes
         [Route(""), HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] NoteQueryModel query)
         {
             var callerId = HttpContext.Items["id"].ToString();
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
