@@ -54,7 +54,30 @@ namespace firenotes_api.Controllers
         public async Task<IActionResult> Create([FromBody] NoteBindingModel data)
         {
             var callerId = HttpContext.Items["id"].ToString();
-            return Ok();
+
+            if (data == null)
+            {
+                return BadRequest("The payload cannot be null.");
+            }
+
+            if (string.IsNullOrWhiteSpace(data.Title))
+            {
+                return BadRequest("A title is required.");
+            }
+
+            var note = new Note
+            {
+                Owner = callerId,
+                Title = data.Title,
+                Details = data.Details,
+                Tags = data.Tags,
+                IsFavorited = data.IsFavorited
+            };
+            
+            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
+            await notesCollection.InsertOneAsync(note);
+            
+            return Ok(_mapper.Map<NoteViewModel>(note));
         }
     }
 }

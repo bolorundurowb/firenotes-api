@@ -22,7 +22,7 @@ namespace firenotes_api.Models.Data
 
          public List<string> Tags { get; set; }
 
-         public DateTime Created { get; set; }
+         public DateTime Created { get; }
 
          public bool IsFavorited { get; set; }
 
@@ -30,6 +30,7 @@ namespace firenotes_api.Models.Data
          {
              Id = ShortId.Generate(false, true, 10);
              Tags = new List<string>();
+             Created = DateTime.Now;
          }
      }
  }
