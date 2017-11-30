@@ -97,7 +97,7 @@ namespace firenotes_api.Controllers
             }
 
             var filterBuilder = Builders<Note>.Filter;
-            var filter = filterBuilder.Eq("_id", id) & filterBuilder.Eq("owner", callerId);
+            var filter = filterBuilder.Eq("_id", id) & filterBuilder.Eq("Owner", callerId);
 
             var updateBuilder = Builders<Note>.Update;
             var update = updateBuilder.Set("Tags", data.Tags);
@@ -113,7 +113,24 @@ namespace firenotes_api.Controllers
             }
             
             await notesCollection.UpdateOneAsync(filter, update);
+            note = await notesCollection.Find(x => x.Id == id && x.Owner == callerId).FirstOrDefaultAsync();
+            
             return Ok(_mapper.Map<NoteViewModel>(note));
+        }
+        
+        // DELETE api/notes/:id
+        [Route("{id}"), HttpDelete]
+        public async Task<IActionResult> Remove(string id)
+        {
+            var callerId = HttpContext.Items["id"].ToString();
+            
+            var filterBuilder = Builders<Note>.Filter;
+            var filter = filterBuilder.Eq("_id", id) & filterBuilder.Eq("Owner", callerId);
+            
+            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
+            await notesCollection.DeleteOneAsync(filter);
+
+            return Ok("Note successfully removed.");
         }
     }
 }

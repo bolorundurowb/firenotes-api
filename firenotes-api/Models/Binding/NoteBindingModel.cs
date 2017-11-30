@@ -10,7 +10,5 @@ namespace firenotes_api.Models.Binding
         public string Details { get; set; }
 
         public List<string> Tags { get; set; }
-
-        public DateTime Created { get; set; }
     }
 }
