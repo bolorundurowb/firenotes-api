@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Configuration;
@@ -82,7 +81,7 @@ namespace firenotes_api.Controllers
 
             if (data == null)
             {
-                return BadRequest("The payload cannot be null.");
+                return BadRequest("The payload must not be null.");
             }
 
             if (string.IsNullOrWhiteSpace(data.Title))

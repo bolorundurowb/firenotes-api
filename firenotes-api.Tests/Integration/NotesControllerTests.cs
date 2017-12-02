@@ -1,7 +1,65 @@
-﻿namespace firenotes_api.Tests.Integration
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using FluentAssertions;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json.Linq;
+using Xunit;
+
+namespace firenotes_api.Tests.Integration
 {
+    [Collection("API Tests")]
     public class NotesControllerTests
     {
+        private readonly TestServer _server;
+        private readonly HttpClient _client;
+        private string _token;
         
+        public NotesControllerTests()
+        {
+            var webBuilder = new WebHostBuilder()
+                .UseEnvironment("test")
+                .UseStartup<Startup>();
+            _server = new TestServer(webBuilder);
+            _client = _server.CreateClient();
+
+            LogAUserIn();
+        }
+
+        #region Creation
+
+        [Fact]
+        public async void BadReqestIfThePayloadIsNull()
+        {
+            StringContent stringContent = new StringContent(
+                "",
+                Encoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/notes", stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("The payload must not be null.");
+        }
+
+        #endregion
+
+        #region HelperMethods
+
+        private void LogAUserIn()
+        {
+            StringContent stringContent = new StringContent(
+                "{ \"email\": \"name@email.com\", \"password\": \"12345678\" }",
+                Encoding.UTF8,
+                "application/json");
+            var response = _client.PostAsync("/api/auth/login", stringContent).Result;
+            var responseString = response.Content.ReadAsStringAsync().Result;
+            var content = JObject.Parse(responseString);
+
+            _client.DefaultRequestHeaders.TryAddWithoutValidation("x-access-token", content["token"].ToString());
+        }
+
+        #endregion
     }
 }

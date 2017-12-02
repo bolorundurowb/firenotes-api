@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using FluentAssertions;
@@ -30,7 +31,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/signup", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -43,7 +44,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "{ \"email\": \"  \" }",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/signup", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -56,7 +57,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "{ \"email\": \"name@email.com\", \"password\": \"  \" }",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/signup", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -69,7 +70,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "{ \"email\": \"name@email.com\", \"password\": \"12345\" }",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/signup", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -82,7 +83,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "{ \"email\": \"name@email.com\", \"password\": \"12345678\" }",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/signup", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -98,7 +99,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "{ \"email\": \"name@email.com\", \"password\": \"12345679\" }",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/signup", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -115,7 +116,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/login", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -128,7 +129,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "{ \"email\": \"  \" }",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/login", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -141,7 +142,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "{ \"email\": \"name@email.com\", \"password\": \"  \" }",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/login", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -154,7 +155,7 @@ namespace firenotes_api.Tests.Integration
         {
             StringContent stringContent = new StringContent(
                 "{ \"email\": \"names@email.com\", \"password\": \"password\" }",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/login", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -165,9 +166,9 @@ namespace firenotes_api.Tests.Integration
         [Fact]
         public async void SuccessfulLoginWithExistingUser()
         {
-            StringContent stringContent = new StringContent(
+            var stringContent = new StringContent(
                 "{ \"email\": \"name@email.com\", \"password\": \"12345678\" }",
-                UnicodeEncoding.UTF8,
+                Encoding.UTF8,
                 "application/json");
             var response = await _client.PostAsync("/api/auth/login", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
