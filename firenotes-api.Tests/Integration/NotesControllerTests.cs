@@ -55,6 +55,23 @@ namespace firenotes_api.Tests.Integration
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("A title is required.");
         }
+        
+        [Fact]
+        public async void SuccessIfThePayloadIsValid()
+        {
+            var stringContent = new StringContent(
+                "{ \"title\": \"Note\", \"details\": \"Note details\" }",
+                Encoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/notes", stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Contain("title");
+            responseString.Should().Contain("details");
+            responseString.Should().Contain("created");
+            responseString.Should().Contain("isFavorited");
+            
+        }
 
         #endregion
 
