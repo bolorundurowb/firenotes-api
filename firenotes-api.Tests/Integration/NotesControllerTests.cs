@@ -33,7 +33,7 @@ namespace firenotes_api.Tests.Integration
         [Fact]
         public async void BadReqestIfThePayloadIsNull()
         {
-            StringContent stringContent = new StringContent(
+            var stringContent = new StringContent(
                 "",
                 Encoding.UTF8,
                 "application/json");
@@ -41,6 +41,19 @@ namespace firenotes_api.Tests.Integration
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("The payload must not be null.");
+        }
+        
+        [Fact]
+        public async void BadReqestIfThePayloadHasNoTitle()
+        {
+            var stringContent = new StringContent(
+                "{ \"title\": \" \" }",
+                Encoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/notes", stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("A title is required.");
         }
 
         #endregion
