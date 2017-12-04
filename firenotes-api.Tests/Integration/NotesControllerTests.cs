@@ -86,6 +86,27 @@ namespace firenotes_api.Tests.Integration
             array.Count.Should().Be(1);
         }
 
+        [Fact]
+        public async void ASingleNoteCanBeRetrieved()
+        {
+            var response = await _client.GetAsync("/api/notes");
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseString = await response.Content.ReadAsStringAsync();
+            
+            JArray array = JArray.Parse(responseString);
+            string id = array[0]["id"].ToString();
+            
+            response = await _client.GetAsync("/api/notes" + id);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            responseString = await response.Content.ReadAsStringAsync();
+
+            responseString.Should().Contain("id");
+            responseString.Should().Contain("title");
+            responseString.Should().Contain("details");
+            responseString.Should().Contain("tags");
+            responseString.Should().Contain("created");
+        }
+
         #endregion
 
         #region HelperMethods
