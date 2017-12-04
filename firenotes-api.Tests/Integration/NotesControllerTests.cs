@@ -69,7 +69,21 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Contain("details");
             responseString.Should().Contain("created");
             responseString.Should().Contain("isFavorited");
+        }
+
+        #endregion
+
+        #region Retrieval
+
+        [Fact]
+        public async void AllNotesCanBeRetrieved()
+        {
+            var response = await _client.GetAsync("/api/notes");
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseString = await response.Content.ReadAsStringAsync();
             
+            JArray array = JArray.Parse(responseString);
+            array.Count.Should().Be(1);
         }
 
         #endregion
