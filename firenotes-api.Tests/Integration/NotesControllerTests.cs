@@ -15,6 +15,7 @@ namespace firenotes_api.Tests.Integration
         private readonly TestServer _server;
         private readonly HttpClient _client;
         private string _token;
+        private string noteId;
         
         public NotesControllerTests()
         {
@@ -83,22 +84,16 @@ namespace firenotes_api.Tests.Integration
             var responseString = await response.Content.ReadAsStringAsync();
             
             JArray array = JArray.Parse(responseString);
+            noteId = array[0]["id"].ToString();
             array.Count.Should().Be(1);
         }
 
         [Fact]
         public async void ASingleNoteCanBeRetrieved()
         {
-            var response = await _client.GetAsync("/api/notes");
+            var response = await _client.GetAsync("/api/notes/" + noteId);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
-            
-            JArray array = JArray.Parse(responseString);
-            string id = array[0]["id"].ToString();
-            
-            response = await _client.GetAsync("/api/notes/" + id);
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            responseString = await response.Content.ReadAsStringAsync();
 
             responseString.Should().Contain("id");
             responseString.Should().Contain("title");
