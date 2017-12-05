@@ -119,6 +119,11 @@ namespace firenotes_api.Controllers
                 return NotFound("Sorry, you either have no access to the note requested or it doesn't exist.");
             }
 
+            if (data == null)
+            {
+                return Ok(_mapper.Map<NoteViewModel>(note));
+            }
+
             var filterBuilder = Builders<Note>.Filter;
             var filter = filterBuilder.Eq("_id", id) & filterBuilder.Eq("Owner", callerId);
 

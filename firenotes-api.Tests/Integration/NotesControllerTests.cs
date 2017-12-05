@@ -104,6 +104,70 @@ namespace firenotes_api.Tests.Integration
 
         #endregion
 
+        #region Update
+
+        [Fact]
+        public async void NotFoundWhenNonExistentIdIsRequested()
+        {
+            var stringContent = new StringContent(
+                string.Empty,
+                Encoding.UTF8,
+                "application/json");
+            var response = await _client.PutAsync("/api/notes/xxxx", stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("Sorry, you either have no access to the note requested or it doesn't exist.");
+        }
+        
+        [Fact]
+        public async void UpdatesNoteWithProperIdAndPayload()
+        {
+            var stringContent = new StringContent(
+                "{ \"title\": \"Note To Be Updated\", \"details\": \"Note details\" }",
+                Encoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/notes", stringContent);
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(responseString);
+
+            var noteId = jObject["id"].ToString();
+            stringContent = new StringContent(
+                "{ \"title\": \"Note Updated\" }",
+                Encoding.UTF8,
+                "application/json");
+            response = await _client.PutAsync("/api/notes/" + noteId, stringContent);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            responseString = await response.Content.ReadAsStringAsync();
+            jObject = JObject.Parse(responseString);
+
+            jObject["id"].ToString().Should().Be("Note Updated");
+            jObject["details"].ToString().Should().Be("Note details");
+        }
+
+        #endregion
+
+        #region Removal
+
+        [Fact]
+        public async void RemoveNote()
+        {
+            var stringContent = new StringContent(
+                "{ \"title\": \"Note To Be Deleted\", \"details\": \"Note details\" }",
+                Encoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync("/api/notes", stringContent);
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(responseString);
+
+            var noteId = jObject["id"].ToString();
+            response = await _client.DeleteAsync("/api/notes" + noteId);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("Note successfully removed.", responseString);
+        }
+
+        #endregion
+
         #region HelperMethods
 
         private void LogAUserIn()
