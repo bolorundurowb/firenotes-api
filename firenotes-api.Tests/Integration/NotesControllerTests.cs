@@ -96,7 +96,7 @@ namespace firenotes_api.Tests.Integration
             JArray array = JArray.Parse(responseString);
             string id = array[0]["id"].ToString();
             
-            response = await _client.GetAsync("/api/notes" + id);
+            response = await _client.GetAsync("/api/notes/" + id);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             responseString = await response.Content.ReadAsStringAsync();
 
