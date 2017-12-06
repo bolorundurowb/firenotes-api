@@ -11,8 +11,6 @@ namespace firenotes_api.Tests.Integration
     [TestFixture]
     public class NotesControllerTests : BaseApiControllerTests
     {
-        private string noteId;
-
         [SetUp]
         public void SetUp()
         {
@@ -53,7 +51,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("A title is required.");
         }
         
-        [Test]
+        [Test, Order(200)]
         public async Task SuccessIfThePayloadIsValid()
         {
             var stringContent = new StringContent(
@@ -73,7 +71,9 @@ namespace firenotes_api.Tests.Integration
 
         #region Retrieval
 
-        [Test]
+        private string noteId;
+        
+        [Test, Order(201)]
         public async Task AllNotesCanBeRetrieved()
         {
             var response = await Client.GetAsync("/api/notes");
@@ -85,7 +85,7 @@ namespace firenotes_api.Tests.Integration
             array.Count.Should().Be(1);
         }
 
-        [Test]
+        [Test, Order(202)]
         public async Task ASingleNoteCanBeRetrieved()
         {
             var response = await Client.GetAsync("/api/notes/" + noteId);
@@ -116,26 +116,17 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("Sorry, you either have no access to the note requested or it doesn't exist.");
         }
         
-        [Test]
+        [Test, Order(203)]
         public async Task UpdatesNoteWithProperIdAndPayload()
         {
             var stringContent = new StringContent(
-                "{ \"title\": \"Note To Be Updated\", \"details\": \"Note details\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/notes", stringContent);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var jObject = JObject.Parse(responseString);
-
-            var noteId = jObject["id"].ToString();
-            stringContent = new StringContent(
                 "{ \"title\": \"Note Updated\" }",
                 Encoding.UTF8,
                 "application/json");
-            response = await Client.PutAsync("/api/notes/" + noteId, stringContent);
+            var response = await Client.PutAsync("/api/notes/" + noteId, stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            responseString = await response.Content.ReadAsStringAsync();
-            jObject = JObject.Parse(responseString);
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(responseString);
 
             jObject["id"].ToString().Should().Be("Note Updated");
             jObject["details"].ToString().Should().Be("Note details");
@@ -145,21 +136,12 @@ namespace firenotes_api.Tests.Integration
 
         #region Removal
 
-        [Test]
+        [Test, Order(204)]
         public async Task RemoveNote()
         {
-            var stringContent = new StringContent(
-                "{ \"title\": \"Note To Be Deleted\", \"details\": \"Note details\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/notes", stringContent);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var jObject = JObject.Parse(responseString);
-
-            var noteId = jObject["id"].ToString();
-            response = await Client.DeleteAsync("/api/notes" + noteId);
+            var response = await Client.DeleteAsync("/api/notes" + noteId);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            responseString = await response.Content.ReadAsStringAsync();
+            var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("Note successfully removed.", responseString);
         }
 
