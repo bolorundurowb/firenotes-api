@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using Xunit;
+using NUnit.Framework;
 
 namespace firenotes_api.Tests.Integration
 {
-    [Collection("API Tests")]
+    [TestFixture]
     public class DefaultControllerTests
     {
         private readonly TestServer _server;
@@ -22,7 +22,7 @@ namespace firenotes_api.Tests.Integration
             _client = _server.CreateClient();
         }
 
-        [Fact]
+        [Test]
         public async Task RootResponse()
         {
             var response = await _client.GetAsync("/");
@@ -31,7 +31,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("Welcome to the Firenotes API. Start by making requests to the /api routes.");
         }
 
-        [Fact]
+        [Test]
         public async Task ApiRootResponse()
         {
             var response = await _client.GetAsync("/api/");

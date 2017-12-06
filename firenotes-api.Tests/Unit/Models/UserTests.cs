@@ -1,12 +1,13 @@
 ﻿using firenotes_api.Models.Data;
 using FluentAssertions;
-using Xunit;
+using NUnit.Framework;
 
 namespace firenotes_api.Tests.Models
 {
+    [TestFixture]
     public class UserTests
     {
-        [Fact]
+        [Test]
         public void ShouldAutoGenerateId()
         {
             var user = new User();
