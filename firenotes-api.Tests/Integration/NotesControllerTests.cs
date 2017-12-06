@@ -5,11 +5,11 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace firenotes_api.Tests.Integration
 {
-    [Collection("API Tests")]
+    [TestFixture]
     public class NotesControllerTests
     {
         private readonly TestServer _server;
@@ -30,7 +30,7 @@ namespace firenotes_api.Tests.Integration
 
         #region Creation
 
-        [Fact]
+        [Test]
         public async void BadReqestIfThePayloadIsNull()
         {
             var stringContent = new StringContent(
@@ -43,7 +43,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("The payload must not be null.");
         }
         
-        [Fact]
+        [Test]
         public async void BadReqestIfThePayloadHasNoTitle()
         {
             var stringContent = new StringContent(
@@ -56,7 +56,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("A title is required.");
         }
         
-        [Fact]
+        [Test]
         public async void SuccessIfThePayloadIsValid()
         {
             var stringContent = new StringContent(
@@ -76,7 +76,7 @@ namespace firenotes_api.Tests.Integration
 
         #region Retrieval
 
-        [Fact]
+        [Test]
         public async void AllNotesCanBeRetrieved()
         {
             var response = await _client.GetAsync("/api/notes");
@@ -88,7 +88,7 @@ namespace firenotes_api.Tests.Integration
             array.Count.Should().Be(1);
         }
 
-        [Fact]
+        [Test]
         public async void ASingleNoteCanBeRetrieved()
         {
             var response = await _client.GetAsync("/api/notes/" + noteId);
@@ -106,7 +106,7 @@ namespace firenotes_api.Tests.Integration
 
         #region Update
 
-        [Fact]
+        [Test]
         public async void NotFoundWhenNonExistentIdIsRequested()
         {
             var stringContent = new StringContent(
@@ -119,7 +119,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("Sorry, you either have no access to the note requested or it doesn't exist.");
         }
         
-        [Fact]
+        [Test]
         public async void UpdatesNoteWithProperIdAndPayload()
         {
             var stringContent = new StringContent(
@@ -148,7 +148,7 @@ namespace firenotes_api.Tests.Integration
 
         #region Removal
 
-        [Fact]
+        [Test]
         public async void RemoveNote()
         {
             var stringContent = new StringContent(

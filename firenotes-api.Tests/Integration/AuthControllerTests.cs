@@ -4,11 +4,11 @@ using System.Text;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using Xunit;
+using NUnit.Framework;
 
 namespace firenotes_api.Tests.Integration
 {
-    [Collection("API Tests")]
+    [TestFixture]
     public class AuthControllerTests
     {
         private readonly TestServer _server;
@@ -25,7 +25,7 @@ namespace firenotes_api.Tests.Integration
 
         #region SignUp
 
-        [Fact]
+        [Test]
         public async void BadReqestIfTheSignUpPayloadIsNull()
         {
             StringContent stringContent = new StringContent(
@@ -38,7 +38,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("The payload must not be null.");
         }
 
-        [Fact]
+        [Test]
         public async void BadReqestIfTheSignUpEmailIsNull()
         {
             StringContent stringContent = new StringContent(
@@ -51,7 +51,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("An email address is required.");
         }
 
-        [Fact]
+        [Test]
         public async void BadReqestIfTheSignUpPasswordIsNull()
         {
             StringContent stringContent = new StringContent(
@@ -64,7 +64,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("A password is required.");
         }
 
-        [Fact]
+        [Test]
         public async void BadReqestIfTheSignUpPasswordIsLessThanEightCharacters()
         {
             StringContent stringContent = new StringContent(
@@ -77,7 +77,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("The password cannot be less than 8 characters.");
         }
 
-        [Fact]
+        [Test]
         public async void SuccessfulSignUp()
         {
             StringContent stringContent = new StringContent(
@@ -93,7 +93,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Contain("lastName");
         }
 
-        [Fact]
+        [Test]
         public async void ConflictIfAUserWithTheEmailExists()
         {
             StringContent stringContent = new StringContent(
@@ -110,7 +110,7 @@ namespace firenotes_api.Tests.Integration
 
         #region Login
 
-        [Fact]
+        [Test]
         public async void BadReqestIfThePayloadIsNull()
         {
             StringContent stringContent = new StringContent(
@@ -123,7 +123,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("The payload must not be null.");
         }
 
-        [Fact]
+        [Test]
         public async void BadReqestIfTheEmailIsNull()
         {
             StringContent stringContent = new StringContent(
@@ -136,7 +136,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("An email address is required.");
         }
 
-        [Fact]
+        [Test]
         public async void BadReqestIfThePasswordIsNull()
         {
             StringContent stringContent = new StringContent(
@@ -149,7 +149,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("A password is required.");
         }
 
-        [Fact]
+        [Test]
         public async void NotFoundIfTheUserDoesNotExist()
         {
             StringContent stringContent = new StringContent(
@@ -162,7 +162,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("A user with that email address doesn't exist.");
         }
 
-        [Fact]
+        [Test]
         public async void SuccessfulLoginWithExistingUser()
         {
             var stringContent = new StringContent(
