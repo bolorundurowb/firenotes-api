@@ -139,7 +139,7 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(204)]
         public async Task RemoveNote()
         {
-            var response = await Client.DeleteAsync("/api/notes" + noteId);
+            var response = await Client.DeleteAsync("/api/notes/" + noteId);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("Note successfully removed.", responseString);
