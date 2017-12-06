@@ -1,69 +1,66 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace firenotes_api.Tests.Integration
 {
     [TestFixture]
-    public class NotesControllerTests
+    public class NotesControllerTests : BaseApiControllerTests
     {
-        private readonly TestServer _server;
-        private readonly HttpClient _client;
-        private string _token;
         private string noteId;
-        
-        public NotesControllerTests()
-        {
-            var webBuilder = new WebHostBuilder()
-                .UseEnvironment("test")
-                .UseStartup<Startup>();
-            _server = new TestServer(webBuilder);
-            _client = _server.CreateClient();
 
-            LogAUserIn();
+        [SetUp]
+        public void SetUp()
+        {
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("x-access-token", Token);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Client.DefaultRequestHeaders.Remove("x-access-token");
         }
 
         #region Creation
 
         [Test]
-        public async void BadReqestIfThePayloadIsNull()
+        public async Task BadReqestIfThePayloadIsNull()
         {
             var stringContent = new StringContent(
                 "",
                 Encoding.UTF8,
                 "application/json");
-            var response = await _client.PostAsync("/api/notes", stringContent);
+            var response = await Client.PostAsync("/api/notes", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("The payload must not be null.");
         }
         
         [Test]
-        public async void BadReqestIfThePayloadHasNoTitle()
+        public async Task BadReqestIfThePayloadHasNoTitle()
         {
             var stringContent = new StringContent(
                 "{ \"title\": \" \" }",
                 Encoding.UTF8,
                 "application/json");
-            var response = await _client.PostAsync("/api/notes", stringContent);
+            var response = await Client.PostAsync("/api/notes", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("A title is required.");
         }
         
         [Test]
-        public async void SuccessIfThePayloadIsValid()
+        public async Task SuccessIfThePayloadIsValid()
         {
             var stringContent = new StringContent(
                 "{ \"title\": \"Note\", \"details\": \"Note details\" }",
                 Encoding.UTF8,
                 "application/json");
-            var response = await _client.PostAsync("/api/notes", stringContent);
+            var response = await Client.PostAsync("/api/notes", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Contain("title");
@@ -77,9 +74,9 @@ namespace firenotes_api.Tests.Integration
         #region Retrieval
 
         [Test]
-        public async void AllNotesCanBeRetrieved()
+        public async Task AllNotesCanBeRetrieved()
         {
-            var response = await _client.GetAsync("/api/notes");
+            var response = await Client.GetAsync("/api/notes");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
             
@@ -89,9 +86,9 @@ namespace firenotes_api.Tests.Integration
         }
 
         [Test]
-        public async void ASingleNoteCanBeRetrieved()
+        public async Task ASingleNoteCanBeRetrieved()
         {
-            var response = await _client.GetAsync("/api/notes/" + noteId);
+            var response = await Client.GetAsync("/api/notes/" + noteId);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
 
@@ -107,26 +104,26 @@ namespace firenotes_api.Tests.Integration
         #region Update
 
         [Test]
-        public async void NotFoundWhenNonExistentIdIsRequested()
+        public async Task NotFoundWhenNonExistentIdIsRequested()
         {
             var stringContent = new StringContent(
                 string.Empty,
                 Encoding.UTF8,
                 "application/json");
-            var response = await _client.PutAsync("/api/notes/xxxx", stringContent);
+            var response = await Client.PutAsync("/api/notes/xxxx", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("Sorry, you either have no access to the note requested or it doesn't exist.");
         }
         
         [Test]
-        public async void UpdatesNoteWithProperIdAndPayload()
+        public async Task UpdatesNoteWithProperIdAndPayload()
         {
             var stringContent = new StringContent(
                 "{ \"title\": \"Note To Be Updated\", \"details\": \"Note details\" }",
                 Encoding.UTF8,
                 "application/json");
-            var response = await _client.PostAsync("/api/notes", stringContent);
+            var response = await Client.PostAsync("/api/notes", stringContent);
             var responseString = await response.Content.ReadAsStringAsync();
             var jObject = JObject.Parse(responseString);
 
@@ -135,7 +132,7 @@ namespace firenotes_api.Tests.Integration
                 "{ \"title\": \"Note Updated\" }",
                 Encoding.UTF8,
                 "application/json");
-            response = await _client.PutAsync("/api/notes/" + noteId, stringContent);
+            response = await Client.PutAsync("/api/notes/" + noteId, stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             responseString = await response.Content.ReadAsStringAsync();
             jObject = JObject.Parse(responseString);
@@ -149,18 +146,18 @@ namespace firenotes_api.Tests.Integration
         #region Removal
 
         [Test]
-        public async void RemoveNote()
+        public async Task RemoveNote()
         {
             var stringContent = new StringContent(
                 "{ \"title\": \"Note To Be Deleted\", \"details\": \"Note details\" }",
                 Encoding.UTF8,
                 "application/json");
-            var response = await _client.PostAsync("/api/notes", stringContent);
+            var response = await Client.PostAsync("/api/notes", stringContent);
             var responseString = await response.Content.ReadAsStringAsync();
             var jObject = JObject.Parse(responseString);
 
             var noteId = jObject["id"].ToString();
-            response = await _client.DeleteAsync("/api/notes" + noteId);
+            response = await Client.DeleteAsync("/api/notes" + noteId);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("Note successfully removed.", responseString);
@@ -168,21 +165,5 @@ namespace firenotes_api.Tests.Integration
 
         #endregion
 
-        #region HelperMethods
-
-        private void LogAUserIn()
-        {
-            StringContent stringContent = new StringContent(
-                "{ \"email\": \"name@email.com\", \"password\": \"12345678\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = _client.PostAsync("/api/auth/login", stringContent).Result;
-            var responseString = response.Content.ReadAsStringAsync().Result;
-            var content = JObject.Parse(responseString);
-
-            _client.DefaultRequestHeaders.TryAddWithoutValidation("x-access-token", content["token"].ToString());
-        }
-
-        #endregion
     }
 }
