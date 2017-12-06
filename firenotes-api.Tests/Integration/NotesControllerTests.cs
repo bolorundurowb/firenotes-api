@@ -128,7 +128,8 @@ namespace firenotes_api.Tests.Integration
             var responseString = await response.Content.ReadAsStringAsync();
             var jObject = JObject.Parse(responseString);
 
-            jObject["id"].ToString().Should().Be("Note Updated");
+            jObject["id"].ToString().Should().Be(noteId);
+            jObject["title"].ToString().Should().Be("Note Updated");
             jObject["details"].ToString().Should().Be("Note details");
         }
 
