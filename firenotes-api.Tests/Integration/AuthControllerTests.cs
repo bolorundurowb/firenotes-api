@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace firenotes_api.Tests.Integration
@@ -74,10 +75,13 @@ namespace firenotes_api.Tests.Integration
             var response = await Client.PostAsync("/api/auth/signup", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Contain("token");
-            responseString.Should().Contain("email");
-            responseString.Should().Contain("firstName");
-            responseString.Should().Contain("lastName");
+            var jObject = JObject.Parse(responseString);
+
+            jObject["id"].ToString().Should().NotBeNullOrWhiteSpace();
+            jObject["token"].ToString().Should().NotBeNullOrWhiteSpace();
+            jObject["email"].ToString().Should().Be("name@email.com");
+            jObject["firstName"].ToString().Should().BeEmpty();
+            jObject["lastName"].ToString().Should().BeEmpty();
         }
 
         [Test, Order(101)]
@@ -159,10 +163,13 @@ namespace firenotes_api.Tests.Integration
             var response = await Client.PostAsync("/api/auth/login", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Contain("token");
-            responseString.Should().Contain("email");
-            responseString.Should().Contain("firstName");
-            responseString.Should().Contain("lastName");
+            var jObject = JObject.Parse(responseString);
+
+            jObject["id"].ToString().Should().NotBeNullOrWhiteSpace();
+            jObject["token"].ToString().Should().NotBeNullOrWhiteSpace();
+            jObject["email"].ToString().Should().Be("name@email.com");
+            jObject["firstName"].ToString().Should().BeEmpty();
+            jObject["lastName"].ToString().Should().BeEmpty();
         }
 
          #endregion

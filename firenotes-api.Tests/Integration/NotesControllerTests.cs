@@ -61,10 +61,14 @@ namespace firenotes_api.Tests.Integration
             var response = await Client.PostAsync("/api/notes", stringContent);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Contain("title");
-            responseString.Should().Contain("details");
-            responseString.Should().Contain("created");
-            responseString.Should().Contain("isFavorited");
+            var jObject = JObject.Parse(responseString);
+
+            jObject["id"].ToString().Should().NotBeNullOrWhiteSpace();
+            jObject["title"].ToString().Should().Be("Note");
+            jObject["details"].ToString().Should().Be("Note details");
+            jObject["tags"].ToObject<JArray>().Count.Should().Be(0);
+            jObject["created"].ToString().Should().NotBeNullOrWhiteSpace();
+            jObject["isFavorited"].ToObject<bool>().Should().BeFalse();
         }
 
         #endregion
@@ -91,12 +95,14 @@ namespace firenotes_api.Tests.Integration
             var response = await Client.GetAsync("/api/notes/" + noteId);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
+            var jObject = JObject.Parse(responseString);
 
-            responseString.Should().Contain("id");
-            responseString.Should().Contain("title");
-            responseString.Should().Contain("details");
-            responseString.Should().Contain("tags");
-            responseString.Should().Contain("created");
+            jObject["id"].ToString().Should().Be(noteId);
+            jObject["title"].ToString().Should().Be("Note");
+            jObject["details"].ToString().Should().Be("Note details");
+            jObject["tags"].ToObject<JArray>().Count.Should().Be(0);
+            jObject["created"].ToString().Should().NotBeNullOrWhiteSpace();
+            jObject["isFavorited"].ToObject<bool>().Should().BeFalse();
         }
 
         #endregion
@@ -131,6 +137,9 @@ namespace firenotes_api.Tests.Integration
             jObject["id"].ToString().Should().Be(noteId);
             jObject["title"].ToString().Should().Be("Note Updated");
             jObject["details"].ToString().Should().Be("Note details");
+            jObject["tags"].ToObject<JArray>().Count.Should().Be(0);
+            jObject["created"].ToString().Should().NotBeNullOrWhiteSpace();
+            jObject["isFavorited"].ToObject<bool>().Should().BeFalse();
         }
 
         #endregion
@@ -147,6 +156,5 @@ namespace firenotes_api.Tests.Integration
         }
 
         #endregion
-
     }
 }
