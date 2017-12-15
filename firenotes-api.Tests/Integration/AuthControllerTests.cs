@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using firenotes_api.Models.Binding;
 using firenotes_api.Tests.Util;
@@ -78,11 +76,8 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task BadReqestIfTheEmailIsNull()
         {
-            StringContent stringContent = new StringContent(
-                "{ \"email\": \"  \" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/login", stringContent);
+            var payload = new LoginBindingModel { Email = " " };
+            var response = await Client.PostAsJsonAsync("/api/auth/login", payload);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("An email address is required.");
