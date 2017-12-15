@@ -2,6 +2,8 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using firenotes_api.Models.Binding;
+using firenotes_api.Tests.Util;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -24,28 +26,12 @@ namespace firenotes_api.Tests.Integration
         }
 
         #region Creation
-
-        [Test]
-        public async Task BadReqestIfThePayloadIsNull()
-        {
-            var stringContent = new StringContent(
-                "",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/notes", stringContent);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("The payload must not be null.");
-        }
         
         [Test]
         public async Task BadReqestIfThePayloadHasNoTitle()
         {
-            var stringContent = new StringContent(
-                "{ \"title\": \" \" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/notes", stringContent);
+            var note = new NoteBindingModel {Title = " "};
+            var response = await Client.PostAsJsonAsync("/api/notes", note);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("A title is required.");
@@ -54,11 +40,8 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(200)]
         public async Task SuccessIfThePayloadIsValid()
         {
-            var stringContent = new StringContent(
-                "{ \"title\": \"Note\", \"details\": \"Note details\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/notes", stringContent);
+            var note = new NoteBindingModel {Title = "Note", Details = "Note details"};
+            var response = await Client.PostAsJsonAsync("/api/notes", note);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
             var jObject = JObject.Parse(responseString);
@@ -112,11 +95,8 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task NotFoundWhenNonExistentIdIsRequested()
         {
-            var stringContent = new StringContent(
-                string.Empty,
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PutAsync("/api/notes/xxxx", stringContent);
+            var note = new NoteBindingModel();
+            var response = await Client.PutAsJsonAsync("/api/notes/xxxx", note);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("Sorry, you either have no access to the note requested or it doesn't exist.");
@@ -125,11 +105,8 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(203)]
         public async Task UpdatesNoteWithProperIdAndPayload()
         {
-            var stringContent = new StringContent(
-                "{ \"title\": \"Note Updated\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PutAsync("/api/notes/" + noteId, stringContent);
+            var note = new NoteBindingModel {Title = "Note Updated"};
+            var response = await Client.PutAsJsonAsync("/api/notes/" + noteId, note);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
             var jObject = JObject.Parse(responseString);
