@@ -2,6 +2,8 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using firenotes_api.Models.Binding;
+using firenotes_api.Tests.Util;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -14,26 +16,10 @@ namespace firenotes_api.Tests.Integration
         #region SignUp
 
         [Test]
-        public async Task BadReqestIfTheSignUpPayloadIsNull()
-        {
-            StringContent stringContent = new StringContent(
-                "",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/signup", stringContent);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("The payload must not be null.");
-        }
-
-        [Test]
         public async Task BadReqestIfTheSignUpEmailIsNull()
         {
-            StringContent stringContent = new StringContent(
-                "{ \"email\": \"  \" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/signup", stringContent);
+            var payload = new LoginBindingModel();
+            var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("An email address is required.");
@@ -42,11 +28,8 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task BadReqestIfTheSignUpPasswordIsNull()
         {
-            StringContent stringContent = new StringContent(
-                "{ \"email\": \"name@email.com\", \"password\": \"  \" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/signup", stringContent);
+            var payload = new LoginBindingModel { Email = "name@email.com", Password = "" };
+            var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("A password is required.");
@@ -55,11 +38,8 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task BadReqestIfTheSignUpPasswordIsLessThanEightCharacters()
         {
-            StringContent stringContent = new StringContent(
-                "{ \"email\": \"name@email.com\", \"password\": \"12345\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/signup", stringContent);
+            var payload = new LoginBindingModel { Email = "name@email.com", Password = "12345" };
+            var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("The password cannot be less than 8 characters.");
@@ -68,11 +48,8 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(100)]
         public async Task SuccessfulSignUp()
         {
-            StringContent stringContent = new StringContent(
-                "{ \"email\": \"name@email.com\", \"password\": \"12345678\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/signup", stringContent);
+            var payload = new LoginBindingModel { Email = "name@email.com", Password = "12345678" };
+            var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
             var jObject = JObject.Parse(responseString);
@@ -87,11 +64,8 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(101)]
         public async Task ConflictIfAUserWithTheEmailExists()
         {
-            StringContent stringContent = new StringContent(
-                "{ \"email\": \"name@email.com\", \"password\": \"12345679\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/signup", stringContent);
+            var payload = new LoginBindingModel { Email = "name@email.com", Password = "123456789" };
+            var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.Conflict);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("Sorry, a user with that email already exists.");
@@ -100,19 +74,6 @@ namespace firenotes_api.Tests.Integration
         #endregion
 
         #region Login
-
-        [Test]
-        public async Task BadReqestIfThePayloadIsNull()
-        {
-            StringContent stringContent = new StringContent(
-                "",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/login", stringContent);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("The payload must not be null.");
-        }
 
         [Test]
         public async Task BadReqestIfTheEmailIsNull()
@@ -130,11 +91,8 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task BadReqestIfThePasswordIsNull()
         {
-            StringContent stringContent = new StringContent(
-                "{ \"email\": \"name@email.com\", \"password\": \"  \" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/login", stringContent);
+            var payload = new LoginBindingModel { Email = "name@email.com", Password = " " };
+            var response = await Client.PostAsJsonAsync("/api/auth/login", payload);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("A password is required.");
@@ -143,11 +101,8 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task NotFoundIfTheUserDoesNotExist()
         {
-            StringContent stringContent = new StringContent(
-                "{ \"email\": \"names@email.com\", \"password\": \"password\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/login", stringContent);
+            var payload = new LoginBindingModel { Email = "names@email.com", Password = "password" };
+            var response = await Client.PostAsJsonAsync("/api/auth/login", payload);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("A user with that email address doesn't exist.");
@@ -156,11 +111,8 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(102)]
         public async Task SuccessfulLoginWithExistingUser()
         {
-            var stringContent = new StringContent(
-                "{ \"email\": \"name@email.com\", \"password\": \"12345678\" }",
-                Encoding.UTF8,
-                "application/json");
-            var response = await Client.PostAsync("/api/auth/login", stringContent);
+            var payload = new LoginBindingModel { Email = "name@email.com", Password = "12345678" };
+            var response = await Client.PostAsJsonAsync("/api/auth/login", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
             var jObject = JObject.Parse(responseString);
