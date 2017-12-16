@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using AspNetCore.Http.Extensions;
 using firenotes_api.Models.Binding;
-using firenotes_api.Tests.Util;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
