@@ -1,7 +1,9 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using AspNetCore.Http.Extensions;
 using firenotes_api.Models.Binding;
+using firenotes_api.Models.View;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -63,11 +65,10 @@ namespace firenotes_api.Tests.Integration
         {
             var response = await Client.GetAsync("/api/notes");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseString = await response.Content.ReadAsStringAsync();
+            var list = await response.Content.ReadAsJsonAsync<List<NoteViewModel>>();
             
-            JArray array = JArray.Parse(responseString);
-            noteId = array[0]["id"].ToString();
-            array.Count.Should().Be(1);
+            list.Count.Should().Be(1);
+            noteId = list[0].Id;
         }
 
         [Test, Order(202)]
