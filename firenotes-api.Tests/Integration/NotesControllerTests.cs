@@ -102,7 +102,7 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(203)]
         public async Task UpdatesNoteWithProperIdAndPayload()
         {
-            var payload = new NoteBindingModel {Title = "Note Updated", Tags = { "Tag1" }};
+            var payload = new NoteBindingModel {Title = "Note Updated", Tags = new List<string>{ "Tag1" }};
             var response = await Client.PutAsJsonAsync("/api/notes/" + noteId, payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
