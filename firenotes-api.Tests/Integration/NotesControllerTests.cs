@@ -40,18 +40,17 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(200)]
         public async Task SuccessIfThePayloadIsValid()
         {
-            var note = new NoteBindingModel {Title = "Note", Details = "Note details"};
-            var response = await Client.PostAsJsonAsync("/api/notes", note);
+            var payload = new NoteBindingModel {Title = "Note", Details = "Note details"};
+            var response = await Client.PostAsJsonAsync("/api/notes", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var jObject = JObject.Parse(responseString);
+            var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
 
-            jObject["id"].ToString().Should().NotBeNullOrWhiteSpace();
-            jObject["title"].ToString().Should().Be("Note");
-            jObject["details"].ToString().Should().Be("Note details");
-            jObject["tags"].ToObject<JArray>().Count.Should().Be(0);
-            jObject["created"].ToString().Should().NotBeNullOrWhiteSpace();
-            jObject["isFavorited"].ToObject<bool>().Should().BeFalse();
+            note.Id.Should().NotBeNullOrWhiteSpace();
+            note.Title.Should().Be("Note");
+            note.Details.Should().Be("Note details");
+            note.Tags.Count.Should().Be(0);
+            note.Created.ToString().Should().NotBeNullOrWhiteSpace();
+            note.IsFavorited.Should().BeFalse();
         }
 
         #endregion
@@ -76,15 +75,14 @@ namespace firenotes_api.Tests.Integration
         {
             var response = await Client.GetAsync("/api/notes/" + noteId);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var jObject = JObject.Parse(responseString);
+            var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
 
-            jObject["id"].ToString().Should().Be(noteId);
-            jObject["title"].ToString().Should().Be("Note");
-            jObject["details"].ToString().Should().Be("Note details");
-            jObject["tags"].ToObject<JArray>().Count.Should().Be(0);
-            jObject["created"].ToString().Should().NotBeNullOrWhiteSpace();
-            jObject["isFavorited"].ToObject<bool>().Should().BeFalse();
+            note.Id.Should().NotBeNullOrWhiteSpace();
+            note.Title.Should().Be("Note");
+            note.Details.Should().Be("Note details");
+            note.Tags.Count.Should().Be(0);
+            note.Created.ToString().Should().NotBeNullOrWhiteSpace();
+            note.IsFavorited.Should().BeFalse();
         }
 
         #endregion
@@ -104,18 +102,17 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(203)]
         public async Task UpdatesNoteWithProperIdAndPayload()
         {
-            var note = new NoteBindingModel {Title = "Note Updated"};
-            var response = await Client.PutAsJsonAsync("/api/notes/" + noteId, note);
+            var payload = new NoteBindingModel {Title = "Note Updated", Tags = { "Tag1" }};
+            var response = await Client.PutAsJsonAsync("/api/notes/" + noteId, payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var jObject = JObject.Parse(responseString);
+            var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
 
-            jObject["id"].ToString().Should().Be(noteId);
-            jObject["title"].ToString().Should().Be("Note Updated");
-            jObject["details"].ToString().Should().Be("Note details");
-            jObject["tags"].ToObject<JArray>().Count.Should().Be(0);
-            jObject["created"].ToString().Should().NotBeNullOrWhiteSpace();
-            jObject["isFavorited"].ToObject<bool>().Should().BeFalse();
+            note.Id.Should().NotBeNullOrWhiteSpace();
+            note.Title.Should().Be("Note Updated");
+            note.Details.Should().Be("Note details");
+            note.Tags.Count.Should().Be(1);
+            note.Created.ToString().Should().NotBeNullOrWhiteSpace();
+            note.IsFavorited.Should().BeFalse();
         }
 
         #endregion
