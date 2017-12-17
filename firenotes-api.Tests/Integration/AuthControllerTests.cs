@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AspNetCore.Http.Extensions;
 using firenotes_api.Models.Binding;
+using firenotes_api.Models.View;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -49,14 +50,13 @@ namespace firenotes_api.Tests.Integration
             var payload = new LoginBindingModel { Email = "name@email.com", Password = "12345678" };
             var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var jObject = JObject.Parse(responseString);
+            var user = await response.Content.ReadAsJsonAsync<AuthViewModel>();
 
-            jObject["id"].ToString().Should().NotBeNullOrWhiteSpace();
-            jObject["token"].ToString().Should().NotBeNullOrWhiteSpace();
-            jObject["email"].ToString().Should().Be("name@email.com");
-            jObject["firstName"].ToString().Should().BeEmpty();
-            jObject["lastName"].ToString().Should().BeEmpty();
+            user.Id.Should().NotBeNullOrWhiteSpace();
+            user.Token.Should().NotBeNullOrWhiteSpace();
+            user.Email.Should().Be("name@email.com");
+            user.FirstName.Should().BeEmpty();
+            user.LastName.Should().BeEmpty();
         }
 
         [Test, Order(101)]
@@ -109,14 +109,14 @@ namespace firenotes_api.Tests.Integration
             var payload = new LoginBindingModel { Email = "name@email.com", Password = "12345678" };
             var response = await Client.PostAsJsonAsync("/api/auth/login", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var jObject = JObject.Parse(responseString);
+            
+            var user = await response.Content.ReadAsJsonAsync<AuthViewModel>();
 
-            jObject["id"].ToString().Should().NotBeNullOrWhiteSpace();
-            jObject["token"].ToString().Should().NotBeNullOrWhiteSpace();
-            jObject["email"].ToString().Should().Be("name@email.com");
-            jObject["firstName"].ToString().Should().BeEmpty();
-            jObject["lastName"].ToString().Should().BeEmpty();
+            user.Id.Should().NotBeNullOrWhiteSpace();
+            user.Token.Should().NotBeNullOrWhiteSpace();
+            user.Email.Should().Be("name@email.com");
+            user.FirstName.Should().BeEmpty();
+            user.LastName.Should().BeEmpty();
         }
 
          #endregion
