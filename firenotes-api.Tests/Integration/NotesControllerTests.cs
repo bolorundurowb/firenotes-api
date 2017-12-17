@@ -12,6 +12,8 @@ namespace firenotes_api.Tests.Integration
     [TestFixture]
     public class NotesControllerTests : BaseApiControllerTests
     {
+        private string noteId;
+        
         [SetUp]
         public void SetUp()
         {
@@ -36,7 +38,7 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("A title is required.");
         }
         
-        [Test, Order(200)]
+        [Test]
         public async Task SuccessIfThePayloadIsValid()
         {
             var payload = new NoteBindingModel {Title = "Note", Details = "Note details"};
@@ -55,29 +57,31 @@ namespace firenotes_api.Tests.Integration
         #endregion
 
         #region Retrieval
-
-        private string noteId;
         
-        [Test, Order(201)]
+        [Test]
         public async Task AllNotesCanBeRetrieved()
         {
             var response = await Client.GetAsync("/api/notes");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var list = await response.Content.ReadAsJsonAsync<List<NoteViewModel>>();
             
-            list.Count.Should().Be(1);
-            noteId = list[0].Id;
+            list.Count.Should().Be(2);
         }
 
         [Test, Order(202)]
         public async Task ASingleNoteCanBeRetrieved()
         {
-            var response = await Client.GetAsync("/api/notes/" + noteId);
+            var payload = new NoteBindingModel {Title = "Title", Details = "Note details"};
+            var response = await Client.PostAsJsonAsync("/api/notes", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
+            
+            response = await Client.GetAsync("/api/notes/" + note.Id);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
 
             note.Id.Should().NotBeNullOrWhiteSpace();
-            note.Title.Should().Be("Note");
+            note.Title.Should().Be("Title");
             note.Details.Should().Be("Note details");
             note.Tags.Count.Should().Be(0);
             note.Created.ToString().Should().NotBeNullOrWhiteSpace();
@@ -98,16 +102,24 @@ namespace firenotes_api.Tests.Integration
             responseString.Should().Be("Sorry, you either have no access to the note requested or it doesn't exist.");
         }
         
-        [Test, Order(203)]
+        [Test, Order(200)]
         public async Task UpdatesNoteWithProperIdAndPayload()
         {
-            var payload = new NoteBindingModel {Title = "Note Updated", Tags = new List<string>{ "Tag1" }};
-            var response = await Client.PutAsJsonAsync("/api/notes/" + noteId, payload);
+            // add note to be updated
+            var payload = new NoteBindingModel {Title = "Title", Details = "Note details"};
+            var response = await Client.PostAsJsonAsync("/api/notes", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
 
+            noteId = note.Id;
+            
+            payload = new NoteBindingModel {Title = "Title Updated", Tags = new List<string>{ "Tag1" }};
+            response = await Client.PutAsJsonAsync("/api/notes/" + note.Id, payload);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
+
             note.Id.Should().NotBeNullOrWhiteSpace();
-            note.Title.Should().Be("Note Updated");
+            note.Title.Should().Be("Title Updated");
             note.Details.Should().Be("Note details");
             note.Tags.Count.Should().Be(1);
             note.Created.ToString().Should().NotBeNullOrWhiteSpace();
@@ -118,13 +130,43 @@ namespace firenotes_api.Tests.Integration
 
         #region Removal
 
-        [Test, Order(204)]
+        [Test]
         public async Task RemoveNote()
         {
-            var response = await Client.DeleteAsync("/api/notes/" + noteId);
+            // add note to be removed
+            var payload = new NoteBindingModel {Title = "Title", Details = "Note details"};
+            var response = await Client.PostAsJsonAsync("/api/notes", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
+            
+            response = await Client.DeleteAsync("/api/notes/" + note.Id);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("Note successfully removed.", responseString);
+        }
+
+        #endregion
+
+        #region (Un)Favoriting
+
+        [Test, Order(201)]
+        public async Task FavoriteNote()
+        {
+            var response = await Client.PostAsJsonAsync("/api/notes/" + noteId + "/favorite", new object());
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
+
+            note.IsFavorited.Should().BeTrue();
+        }
+
+        [Test, Order(202)]
+        public async Task UnFavoriteNote()
+        {
+            var response = await Client.PostAsJsonAsync("/api/notes/" + noteId + "/unfavorite", new object());
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
+
+            note.IsFavorited.Should().BeFalse();
         }
 
         #endregion
