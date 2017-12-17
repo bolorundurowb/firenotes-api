@@ -5,7 +5,6 @@ using AspNetCore.Http.Extensions;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.View;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace firenotes_api.Tests.Integration
