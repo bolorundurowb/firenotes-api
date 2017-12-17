@@ -4,7 +4,6 @@ using AspNetCore.Http.Extensions;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.View;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace firenotes_api.Tests.Integration
@@ -55,8 +54,8 @@ namespace firenotes_api.Tests.Integration
             user.Id.Should().NotBeNullOrWhiteSpace();
             user.Token.Should().NotBeNullOrWhiteSpace();
             user.Email.Should().Be("name@email.com");
-            user.FirstName.Should().BeEmpty();
-            user.LastName.Should().BeEmpty();
+            user.FirstName.Should().BeNullOrEmpty();
+            user.LastName.Should().BeNullOrEmpty();
         }
 
         [Test, Order(101)]
@@ -115,8 +114,8 @@ namespace firenotes_api.Tests.Integration
             user.Id.Should().NotBeNullOrWhiteSpace();
             user.Token.Should().NotBeNullOrWhiteSpace();
             user.Email.Should().Be("name@email.com");
-            user.FirstName.Should().BeEmpty();
-            user.LastName.Should().BeEmpty();
+            user.FirstName.Should().BeNullOrEmpty();
+            user.LastName.Should().BeNullOrEmpty();
         }
 
          #endregion
