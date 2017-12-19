@@ -119,5 +119,39 @@ namespace firenotes_api.Tests.Integration
         }
 
          #endregion
+
+        #region ForgotPassword
+
+        [Test]
+        public async Task ForgotPassword_Should_ReturnnBadReqest_When_TheEmailIsNull()
+        {
+            var payload = new LoginBindingModel { Email = " " };
+            var response = await Client.PostAsJsonAsync("/api/auth/forgot-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("An email address is required.");
+        }
+        
+        [Test]
+        public async Task ForgotPassword_Should_ReturnnNotFound_When_TheEmailIsNonExistent()
+        {
+            var payload = new LoginBindingModel { Email = "non-existent@email.com" };
+            var response = await Client.PostAsJsonAsync("/api/auth/forgot-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("A user with that email address doesn't exist.");
+        }
+        
+        [Test]
+        public async Task ForgotPassword_Should_ReturnnOk_When_TheEmailIsExists()
+        {
+            var payload = new LoginBindingModel { Email = "name@email.com" };
+            var response = await Client.PostAsJsonAsync("/api/auth/forgot-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("Your password reset email has been sent.");
+        }
+
+        #endregion
     }
 }

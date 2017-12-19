@@ -118,6 +118,30 @@ namespace firenotes_api.Controllers
             return Ok(result);
         }
 
+        [Route("forgot-password"), HttpPost]
+        public async Task<IActionResult> ForgotePassword([FromBody] ForgotPasswordBindingModel bm)
+        {
+            if (bm == null)
+            {
+                return BadRequest("The payload must not be null.");
+            }
+
+            if (string.IsNullOrWhiteSpace(bm.Email))
+            {
+                return BadRequest("An email address is required.");
+            }
+            
+            var usersCollection = _mongoDatabase.GetCollection<User>("users");
+            var user = await usersCollection.Find(x => x.Email == bm.Email).FirstOrDefaultAsync();
+            
+            if (user == null)
+            {
+                return NotFound("A user with that email address doesn't exist.");
+            }
+
+            return Ok("Your password reset email has been sent.");
+        }
+
         private string GenerateAuthToken(string id)
         {
             var payload = new Dictionary<string, string>
