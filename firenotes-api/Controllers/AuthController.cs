@@ -117,6 +117,8 @@ namespace firenotes_api.Controllers
             result.Token = token;
             return Ok(result);
         }
+        
+        public async ForgotePassword([FromBody] )
 
         private string GenerateAuthToken(string id)
         {
