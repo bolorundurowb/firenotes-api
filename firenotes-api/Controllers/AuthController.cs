@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Configuration;
@@ -59,7 +60,7 @@ namespace firenotes_api.Controllers
                 return Unauthorized();
             }
 
-            var token = GenerateAuthToken(user.Id);
+            var token = GenerateToken("id", user.Id);
             var result = _mapper.Map<AuthViewModel>(user);
             result.Token = token;
             return Ok(result);
@@ -112,14 +113,14 @@ namespace firenotes_api.Controllers
             };
             await usersCollection.InsertOneAsync(user);
             
-            var token = GenerateAuthToken(user.Id);
+            var token = GenerateToken("id", user.Id);
             var result = _mapper.Map<AuthViewModel>(user);
             result.Token = token;
             return Ok(result);
         }
 
         [Route("forgot-password"), HttpPost]
-        public async Task<IActionResult> ForgotePassword([FromBody] ForgotPasswordBindingModel bm)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordBindingModel bm)
         {
             if (bm == null)
             {
@@ -139,14 +140,23 @@ namespace firenotes_api.Controllers
                 return NotFound("A user with that email address doesn't exist.");
             }
 
+            var token = GenerateToken("email", bm.Email, 12);
+            var email = EmailTemplates.GetForgotPasswordEmail($"{Config.FrontEndUrl}/auth/reset-password?token={token}");
+
             return Ok("Your password reset email has been sent.");
         }
 
-        private string GenerateAuthToken(string id)
+        private string GenerateToken(string key, string data, int duration = 48)
         {
-            var payload = new Dictionary<string, string>
+            IDateTimeProvider provider = new UtcDateTimeProvider();
+            var expiry = provider.GetNow().AddHours(duration);
+            var unixEpoch = JwtValidator.UnixEpoch; 
+            var secondsSinceEpoch = Math.Round((expiry - unixEpoch).TotalSeconds);
+            
+            var payload = new Dictionary<string, object>
             {
-                {"id", id}
+                { key, data },
+                { "exp", secondsSinceEpoch }
             };
             var secret = Config.Secret;
             
@@ -156,6 +166,7 @@ namespace firenotes_api.Controllers
             IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
 
             var token = encoder.Encode(payload, secret);
+            
             return token;
         }
     }
