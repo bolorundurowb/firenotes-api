@@ -18,9 +18,12 @@ namespace firenotes_api.Configuration
                 {
                     handlebars = string.Empty;
                 }
-                using (var streamReader = new StreamReader(stream))
+                else
                 {
-                    handlebars = streamReader.ReadToEnd();
+                    using (var streamReader = new StreamReader(stream))
+                    {
+                        handlebars = streamReader.ReadToEnd();
+                    }
                 }
             }
 
