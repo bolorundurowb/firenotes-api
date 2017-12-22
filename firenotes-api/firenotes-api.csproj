@@ -22,9 +22,4 @@
   <ItemGroup>
     <None Remove=".env" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include=".env">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 </Project>

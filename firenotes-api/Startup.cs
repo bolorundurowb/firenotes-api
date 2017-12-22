@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System;
+using System.IO;
+using AutoMapper;
 using dotenv.net;
 using firenotes_api.Middleware;
 using Microsoft.AspNetCore.Builder;
@@ -14,12 +16,14 @@ namespace firenotes_api
         
         public Startup(IConfiguration configuration)
         {
-            DotEnv.Config();
+            string fullPath = Path.GetFullPath(".env");
+            DotEnv.Config(false, fullPath);
+            
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
-
+        
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
