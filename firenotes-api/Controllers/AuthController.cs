@@ -11,6 +11,7 @@ using JWT.Algorithms;
 using JWT.Serializers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
 namespace firenotes_api.Controllers
@@ -20,10 +21,13 @@ namespace firenotes_api.Controllers
     {
         private IMongoDatabase _mongoDatabase;
         private IMapper _mapper;
+        private ILogger _logger;
 
-        public AuthController(IMapper mapper)
+        public AuthController(IMapper mapper, ILogger logger)
         {
             _mapper = mapper;
+            _logger = logger;
+            
             var dbPath = Config.DbPath;
             var mongoClient = new MongoClient(dbPath);
             _mongoDatabase = mongoClient.GetDatabase(Startup.DatabaseName);
@@ -142,6 +146,15 @@ namespace firenotes_api.Controllers
 
             var token = GenerateToken("email", bm.Email, 12);
             var email = EmailTemplates.GetForgotPasswordEmail($"{Config.FrontEndUrl}/auth/reset-password?token={token}");
+            var result = await Email.Send(bm.Email, "Forgot Password", email);
+            if (result.Count == 0)
+            {
+                _logger.LogInformation("Forgot password email sent successfully.");
+            }
+            else
+            {
+                _logger.LogError("An error occurred when sending ");
+            }
 
             return Ok("Your password reset email has been sent.");
         }
