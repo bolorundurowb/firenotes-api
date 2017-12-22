@@ -6,7 +6,7 @@ namespace firenotes_api.Configuration
 {
     public class EmailTemplates
     {
-        public static string GetForgotPasswordEmail(object data)
+        public static string GetForgotPasswordEmail(string email, string frontEndUrl)
         {
             string templateName = "ForgotPassword";
 
@@ -25,7 +25,11 @@ namespace firenotes_api.Configuration
             }
 
             var template = Handlebars.Compile(handlebars);
-            return template(data);
+            return template(new
+            {
+                Email = email,
+                FrontEndUrl = frontEndUrl
+            });
         }
 
         private static Stream GetTemplate(string templateName)
