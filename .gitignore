@@ -292,3 +292,5 @@ __pycache__/
 
 # Env file
 .env
+
+.DS_Store
