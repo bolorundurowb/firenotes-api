@@ -17,8 +17,8 @@ namespace firenotes_api
         public Startup(IConfiguration configuration)
         {
             string fullPath = Path.GetFullPath(".env");
-            Console.WriteLine(fullPath);
             DotEnv.Config(true, fullPath);
+            
             Configuration = configuration;
         }
 
