@@ -23,7 +23,7 @@ namespace firenotes_api.Controllers
         private IMapper _mapper;
         private ILogger _logger;
 
-        public AuthController(IMapper mapper, ILogger logger)
+        public AuthController(IMapper mapper, ILogger<AuthController> logger)
         {
             _mapper = mapper;
             _logger = logger;
