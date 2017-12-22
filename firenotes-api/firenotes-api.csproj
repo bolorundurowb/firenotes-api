@@ -3,13 +3,13 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Configuration\EmailTemplates" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="3.2.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="2.1.2" />
     <PackageReference Include="dotenv.net" Version="1.0.0" />
+    <PackageReference Include="Handlebars.Net" Version="1.9.0" />
     <PackageReference Include="JWT" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
     <PackageReference Include="Microsoft.NETCore.App" Version="2.0.3" />
