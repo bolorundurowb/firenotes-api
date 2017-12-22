@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System;
+using System.IO;
+using AutoMapper;
 using dotenv.net;
 using firenotes_api.Middleware;
 using Microsoft.AspNetCore.Builder;
@@ -14,7 +16,9 @@ namespace firenotes_api
         
         public Startup(IConfiguration configuration)
         {
-            DotEnv.Config();
+            string fullPath = Path.GetFullPath(".env");
+            Console.WriteLine(fullPath);
+            DotEnv.Config(true, fullPath);
             Configuration = configuration;
         }
 
