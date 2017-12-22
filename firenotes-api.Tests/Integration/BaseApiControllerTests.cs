@@ -20,6 +20,8 @@ namespace firenotes_api.Tests.Integration
             
             Environment.SetEnvironmentVariable("MONGO_URL", "mongodb://localhost:27017/");
             Environment.SetEnvironmentVariable("SECRET", "test-secret");
+            Environment.SetEnvironmentVariable("SERVICE_EMAIL", "test@email.org");
+            Environment.SetEnvironmentVariable("MANDRILL_API_KEY", "UrZSSLzdVKwrTgOlVADV_w");
         }
     }
 }
