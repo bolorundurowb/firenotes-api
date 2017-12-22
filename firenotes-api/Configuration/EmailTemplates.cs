@@ -6,7 +6,7 @@ namespace firenotes_api.Configuration
 {
     public class EmailTemplates
     {
-        public static string GetForgotPasswordEmail(string email, string frontEndUrl)
+        public static string GetForgotPasswordEmail(string resetLink)
         {
             string templateName = "ForgotPassword";
 
@@ -30,8 +30,7 @@ namespace firenotes_api.Configuration
             var template = Handlebars.Compile(handlebars);
             return template(new
             {
-                Email = email,
-                FrontEndUrl = frontEndUrl
+                ResetLink = resetLink
             });
         }
 
