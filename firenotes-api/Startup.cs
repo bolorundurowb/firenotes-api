@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using AutoMapper;
 using dotenv.net;
 using firenotes_api.Middleware;
