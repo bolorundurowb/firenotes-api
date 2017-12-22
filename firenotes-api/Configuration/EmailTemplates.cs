@@ -9,24 +9,7 @@ namespace firenotes_api.Configuration
         public static string GetForgotPasswordEmail(string resetLink)
         {
             string templateName = "ForgotPassword";
-
-            string handlebars;
-            
-            using (var stream = GetTemplate(templateName))
-            {
-                if (stream == null)
-                {
-                    handlebars = string.Empty;
-                }
-                else
-                {
-                    using (var streamReader = new StreamReader(stream))
-                    {
-                        handlebars = streamReader.ReadToEnd();
-                    }
-                }
-            }
-
+            string handlebars = GetTemplate(templateName);
             var template = Handlebars.Compile(handlebars);
             return template(new
             {
@@ -34,11 +17,21 @@ namespace firenotes_api.Configuration
             });
         }
 
-        private static Stream GetTemplate(string templateName)
+        private static string GetTemplate(string templateName)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var fileNamespace = "firenotes_api.Configuration.EmailTemplates" + templateName + ".hbs";
-            return assembly.GetManifestResourceStream(fileNamespace);
+            using (var stream = assembly.GetManifestResourceStream(fileNamespace))
+            {
+                if (stream == null)
+                {
+                    return string.Empty;
+                }
+                using (var streamReader = new StreamReader(stream))
+                {
+                    return streamReader.ReadToEnd();
+                }
+            }
         }
     }
 }
