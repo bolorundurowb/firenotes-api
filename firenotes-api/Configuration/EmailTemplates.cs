@@ -17,6 +17,14 @@ namespace firenotes_api.Configuration
             });
         }
 
+        public static string GetWelcomeEmail()
+        {
+            string templateName = "Welcome";
+            string handlebars = GetTemplate(templateName);
+            var template = Handlebars.Compile(handlebars);
+            return template(new {});
+        }
+
         private static string GetTemplate(string templateName)
         {
             var assembly = Assembly.GetExecutingAssembly();
