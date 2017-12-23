@@ -107,6 +107,17 @@ namespace firenotes_api.Controllers
                 };
                 return response;
             }
+
+            var email = EmailTemplates.GetWelcomeEmail();
+            var emailStatus = await Email.Send(data.Email, "Forgot Password", email);
+            if (emailStatus.Count == 0)
+            {
+                _logger.LogInformation("Forgot password email sent successfully.");
+            }
+            else
+            {
+                _logger.LogError("An error occurred when sending ");
+            }
             
             user = new User
             {

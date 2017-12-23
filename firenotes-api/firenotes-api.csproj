@@ -22,5 +22,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove=".env" />
+    <None Remove="Configuration\EmailTemplates\ForgotPassword.hbs" />
+    <None Remove="Configuration\EmailTemplates\Welcome.hbs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration\EmailTemplates\ForgotPassword.hbs" />
+    <EmbeddedResource Include="Configuration\EmailTemplates\Welcome.hbs" />
   </ItemGroup>
 </Project>
