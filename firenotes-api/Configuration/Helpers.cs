@@ -8,7 +8,7 @@ namespace firenotes_api.Configuration
 {
     public static class Helpers
     {
-        internal static string GenerateToken(string key, string data, int duration = 48)
+        public static string GenerateToken(string key, string data, int duration = 48)
         {
             IDateTimeProvider provider = new UtcDateTimeProvider();
             var expiry = provider.GetNow().AddHours(duration);

@@ -170,7 +170,7 @@ namespace firenotes_api.Controllers
             return Ok("Your password reset email has been sent.");
         }
 
-        [Route("reset-pssword"), HttpPost]
+        [Route("reset-password"), HttpPost]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordBindingModel bm)
         {
             if (bm == null)
@@ -205,7 +205,7 @@ namespace firenotes_api.Controllers
 
                 if (string.IsNullOrWhiteSpace(email))
                 {
-                    return BadRequest("The email is invalid");
+                    return BadRequest("The email is invalid.");
                 }
                 
                 var usersCollection = _mongoDatabase.GetCollection<User>("users");
@@ -223,16 +223,14 @@ namespace firenotes_api.Controllers
                 var update = updateBuilder.Set("Password", bm.Password);
 
                 await usersCollection.UpdateOneAsync(filter, update);
-                
-                return Ok("The password has been updated.");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw;
             }
-            
-            return Ok();
+                
+            return Ok("The password has been updated.");
         }
     }
 }
