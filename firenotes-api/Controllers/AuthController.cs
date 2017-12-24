@@ -64,7 +64,7 @@ namespace firenotes_api.Controllers
                 return Unauthorized();
             }
 
-            var token = GenerateToken("id", user.Id);
+            var token = Helpers.GenerateToken("id", user.Id);
             var result = _mapper.Map<AuthViewModel>(user);
             result.Token = token;
             return Ok(result);
@@ -128,7 +128,7 @@ namespace firenotes_api.Controllers
             };
             await usersCollection.InsertOneAsync(user);
             
-            var token = GenerateToken("id", user.Id);
+            var token = Helpers.GenerateToken("id", user.Id);
             var result = _mapper.Map<AuthViewModel>(user);
             result.Token = token;
             return Ok(result);
@@ -155,7 +155,7 @@ namespace firenotes_api.Controllers
                 return NotFound("A user with that email address doesn't exist.");
             }
 
-            var token = GenerateToken("email", bm.Email, 12);
+            var token = Helpers.GenerateToken("email", bm.Email, 12);
             var email = EmailTemplates.GetForgotPasswordEmail($"{Config.FrontEndUrl}/auth/reset-password?token={token}");
             var result = await Email.Send(bm.Email, "Forgot Password", email);
             if (result.Count == 0)
@@ -171,33 +171,34 @@ namespace firenotes_api.Controllers
         }
 
         [Route("reset-pssword"), HttpPost]
-        public async Task<IActionResult> ResetPassword([FromBody] object bm)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordBindingModel bm)
         {
-            return Ok();
-        }
-
-        private string GenerateToken(string key, string data, int duration = 48)
-        {
-            IDateTimeProvider provider = new UtcDateTimeProvider();
-            var expiry = provider.GetNow().AddHours(duration);
-            var unixEpoch = JwtValidator.UnixEpoch; 
-            var secondsSinceEpoch = Math.Round((expiry - unixEpoch).TotalSeconds);
-            
-            var payload = new Dictionary<string, object>
+            if (bm == null)
             {
-                { key, data },
-                { "exp", secondsSinceEpoch }
-            };
-            var secret = Config.Secret;
-            
-            IJwtAlgorithm algorithm = new HMACSHA256Algorithm();
-            IJsonSerializer serializer = new JsonNetSerializer();
-            IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
-            IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
+                return BadRequest("The payload must not be null.");
+            }
 
-            var token = encoder.Encode(payload, secret);
+            if (string.IsNullOrWhiteSpace(bm.Token))
+            {
+                return BadRequest("The token is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(bm.Password))
+            {
+                return BadRequest("A password is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(bm.ConfirmPassword))
+            {
+                return BadRequest("A password confirmation is required.");
+            }
+
+            if (bm.Password != bm.ConfirmPassword)
+            {
+                return BadRequest("The passwords must match.");
+            }
             
-            return token;
+            return Ok();
         }
     }
 }
