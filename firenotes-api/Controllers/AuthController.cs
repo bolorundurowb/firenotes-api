@@ -170,6 +170,12 @@ namespace firenotes_api.Controllers
             return Ok("Your password reset email has been sent.");
         }
 
+        [Route("reset-pssword"), HttpPost]
+        public async Task<IActionResult> ResetPassword([FromBody] object bm)
+        {
+            return Ok();
+        }
+
         private string GenerateToken(string key, string data, int duration = 48)
         {
             IDateTimeProvider provider = new UtcDateTimeProvider();
