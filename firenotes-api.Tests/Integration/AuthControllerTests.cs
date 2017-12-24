@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using AspNetCore.Http.Extensions;
+using firenotes_api.Configuration;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.View;
 using FluentAssertions;
@@ -123,7 +124,7 @@ namespace firenotes_api.Tests.Integration
         #region ForgotPassword
 
         [Test]
-        public async Task ForgotPassword_Should_ReturnnBadReqest_When_TheEmailIsNull()
+        public async Task ForgotPassword_Should_ReturnBadReqest_When_TheEmailIsNull()
         {
             var payload = new LoginBindingModel { Email = " " };
             var response = await Client.PostAsJsonAsync("/api/auth/forgot-password", payload);
@@ -150,6 +151,81 @@ namespace firenotes_api.Tests.Integration
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("Your password reset email has been sent.");
+        }
+
+        #endregion
+
+        #region ResetPassword
+
+        [Test]
+        public async Task ResetPassword_Should_ReturnBadrequest_When_TheTokenIsNull()
+        {
+            var payload = new ResetPasswordBindingModel {Token = ""};
+            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("The token is required.");
+        }
+
+        [Test]
+        public async Task ResetPassword_Should_ReturnBadrequest_When_ThePasswordIsNull()
+        {
+            var payload = new ResetPasswordBindingModel {Token = "xxxx"};
+            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("A password is required.");
+        }
+
+        [Test]
+        public async Task ResetPassword_Should_ReturnBadrequest_When_TheConfirmPasswordIsNull()
+        {
+            var payload = new ResetPasswordBindingModel {Token = "xxxx", Password = "xxxx"};
+            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("A password confirmation is required.");
+        }
+
+        [Test]
+        public async Task ResetPassword_Should_ReturnBadrequest_When_ThePasswordIsNotEqualToConfirmPassword()
+        {
+            var payload = new ResetPasswordBindingModel {Token = "xxxx", Password = "xxxx", ConfirmPassword = "xxx"};
+            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("The passwords must match.");
+        }
+
+        [Test]
+        public async Task ResetPassword_Should_ReturnBadRequest_When_TheDecodedEmailIsNull()
+        {
+            var token = Helpers.GenerateToken("email", " ");
+            var payload = new ResetPasswordBindingModel {Token = token, Password = "xxxx", ConfirmPassword = "xxxx"};
+            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("The email is invalid.");
+        }
+
+        [Test]
+        public async Task ResetPassword_Should_ReturnBadRequest_When_TheDecodedEmailDoesNotExist()
+        {
+            var token = Helpers.GenerateToken("email", "unknown@email.com");
+            var payload = new ResetPasswordBindingModel {Token = token, Password = "xxxx", ConfirmPassword = "xxxx"};
+            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Test]
+        public async Task ResetPassword_Should_ReturnOk_When_TheDataIsComplete()
+        {
+            var token = Helpers.GenerateToken("email", "name@email.com");
+            var payload = new ResetPasswordBindingModel {Token = token, Password = "12345678", ConfirmPassword = "12345678"};
+            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString.Should().Be("The password has been updated.");
         }
 
         #endregion

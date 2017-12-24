@@ -29,16 +29,10 @@ namespace firenotes_api.Middleware
                     await context.Response.WriteAsync("Sorry, a token is required to access this route.");
                     return;
                 }
-                string secret = Config.Secret;
+                
                 try
                 {
-                    IJsonSerializer serializer = new JsonNetSerializer();
-                    IDateTimeProvider provider = new UtcDateTimeProvider();
-                    IJwtValidator validator = new JwtValidator(serializer, provider);
-                    IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
-                    IJwtDecoder decoder = new JwtDecoder(serializer, validator, urlEncoder);
-
-                    var json = decoder.DecodeToObject<IDictionary<string, string>>(token, secret, verify: true);
+                    var json = Helpers.DecodeToken(token);
                     context.Items["id"] = json["id"];
                     await _next.Invoke(context);
                     return;
