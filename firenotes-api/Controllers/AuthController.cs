@@ -197,6 +197,40 @@ namespace firenotes_api.Controllers
             {
                 return BadRequest("The passwords must match.");
             }
+
+            try
+            {
+                var json = Helpers.DecodeToken(bm.Token);
+                var email = json["email"];
+
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    return BadRequest("The email is invalid");
+                }
+                
+                var usersCollection = _mongoDatabase.GetCollection<User>("users");
+                var user = await usersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                
+                var filterBuilder = Builders<User>.Filter;
+                var filter = filterBuilder.Eq("Email", email);
+                
+                var updateBuilder = Builders<User>.Update;
+                var update = updateBuilder.Set("Password", bm.Password);
+
+                await usersCollection.UpdateOneAsync(filter, update);
+                
+                return Ok("The password has been updated.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
             
             return Ok();
         }
