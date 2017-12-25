@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Configuration;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
 using firenotes_api.Models.View;
-using JWT;
-using JWT.Algorithms;
-using JWT.Serializers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

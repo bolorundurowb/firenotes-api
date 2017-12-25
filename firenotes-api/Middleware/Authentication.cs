@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using firenotes_api.Configuration;
 using JWT;
-using JWT.Serializers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
