@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using firenotes_api.Configuration;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
+using Microsoft.Extensions.Logging;
 
 namespace firenotes_api.Controllers
 {
@@ -12,11 +13,11 @@ namespace firenotes_api.Controllers
     public class UsersController : Controller
     {
         private IMongoDatabase _mongoDatabase;
-        private IMapper _mapper;
+        private ILogger _logger;
 
-        public UsersController(IMapper mapper)
+        public UsersController(ILogger<AuthController> logger)
         {
-            _mapper = mapper;
+            _logger = logger;
             
             var dbPath = Config.DbPath;
             var mongoClient = new MongoClient(dbPath);
@@ -35,12 +36,24 @@ namespace firenotes_api.Controllers
             }
             
             var usersCollection = _mongoDatabase.GetCollection<User>("users");
+            var user = await usersCollection.Find(x => x.Id == id).FirstAsync();
             
             var filterBuilder = Builders<User>.Filter;
             var filter = filterBuilder.Eq("_id", id);
             
             var updateBuilder = Builders<User>.Update;
             var update = updateBuilder.Set("IsArchived", true);
+
+            var email = EmailTemplates.GetArchivedAccountEmail();
+            var result = await Email.Send(user.Email, "Archived Account", email);
+            if (result.Count == 0)
+            {
+                _logger.LogInformation("Forgot password email sent successfully.");
+            }
+            else
+            {
+                _logger.LogError("An error occurred when sending ");
+            }
             
             await usersCollection.UpdateOneAsync(filter, update);
             

@@ -25,6 +25,14 @@ namespace firenotes_api.Configuration
             return template(new {});
         }
 
+        public static string GetArchivedAccountEmail()
+        {
+            string templateName = "ArchivedAccount";
+            string handlebars = GetTemplate(templateName);
+            var template = Handlebars.Compile(handlebars);
+            return template(new {});
+        }
+
         public static string GetResetPasswordEmail(string firstname)
         {
             string templateName = "ResetPassword";
