@@ -201,15 +201,15 @@ namespace firenotes_api.Controllers
             try
             {
                 var json = Helpers.DecodeToken(bm.Token);
-                var email = json["email"];
+                var emailAddress = json["email"];
 
-                if (string.IsNullOrWhiteSpace(email))
+                if (string.IsNullOrWhiteSpace(emailAddress))
                 {
                     return BadRequest("The email is invalid.");
                 }
                 
                 var usersCollection = _mongoDatabase.GetCollection<User>("users");
-                var user = await usersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
+                var user = await usersCollection.Find(x => x.Email == emailAddress).FirstOrDefaultAsync();
 
                 if (user == null)
                 {
@@ -217,12 +217,23 @@ namespace firenotes_api.Controllers
                 }
                 
                 var filterBuilder = Builders<User>.Filter;
-                var filter = filterBuilder.Eq("Email", email);
+                var filter = filterBuilder.Eq("Email", emailAddress);
                 
                 var updateBuilder = Builders<User>.Update;
                 var update = updateBuilder.Set("Password", bm.Password);
 
                 await usersCollection.UpdateOneAsync(filter, update);
+
+                var email = EmailTemplates.GetResetPasswordEmail(user.FirstName);
+                var result = await Email.Send(user.Email, "Password Reset", email);
+                if (result.Count == 0)
+                {
+                    _logger.LogInformation("Forgot password email sent successfully.");
+                }
+                else
+                {
+                    _logger.LogError("An error occurred when sending ");
+                }
             }
             catch (Exception e)
             {
