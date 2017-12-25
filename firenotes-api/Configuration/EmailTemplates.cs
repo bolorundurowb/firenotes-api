@@ -25,6 +25,17 @@ namespace firenotes_api.Configuration
             return template(new {});
         }
 
+        public static string GetResetPasswordEmail(string firstname)
+        {
+            string templateName = "ResetPassword";
+            string handlebars = GetTemplate(templateName);
+            var template = Handlebars.Compile(handlebars);
+            return template(new
+            {
+                FirstName = firstname
+            });
+        }
+
         private static string GetTemplate(string templateName)
         {
             var assembly = Assembly.GetExecutingAssembly();
