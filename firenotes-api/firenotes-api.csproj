@@ -24,9 +24,13 @@
     <None Remove=".env" />
     <None Remove="Configuration\EmailTemplates\ForgotPassword.hbs" />
     <None Remove="Configuration\EmailTemplates\Welcome.hbs" />
+    <None Remove="Configuration\EmailTemplates\ArchivedAccount.hbs" />
+    <None Remove="Configuration\EmailTemplates\ResetPassword.hbs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Configuration\EmailTemplates\ForgotPassword.hbs" />
     <EmbeddedResource Include="Configuration\EmailTemplates\Welcome.hbs" />
+    <EmbeddedResource Include="Configuration\EmailTemplates\ArchivedAccount.hbs" />
+    <EmbeddedResource Include="Configuration\EmailTemplates\ResetPassword.hbs" />
   </ItemGroup>
 </Project>
