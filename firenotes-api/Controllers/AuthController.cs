@@ -55,6 +55,11 @@ namespace firenotes_api.Controllers
                 return NotFound("A user with that email address doesn't exist.");
             }
 
+            if (user.IsArchived)
+            {
+                return BadRequest("This user's account has been archived. Please reach out to the administrator.");
+            }
+
             if (!BCrypt.Net.BCrypt.Verify(data.Password, user.HashedPassword))
             {
                 return Unauthorized();
