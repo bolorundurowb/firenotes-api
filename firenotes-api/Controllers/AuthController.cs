@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AutoMapper;
+using MongoDB.Driver;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using firenotes_api.Models.View;
+using firenotes_api.Models.Data;
+using Microsoft.AspNetCore.Http;
 using firenotes_api.Configuration;
 using firenotes_api.Models.Binding;
-using firenotes_api.Models.Data;
-using firenotes_api.Models.View;
-using JWT;
-using JWT.Algorithms;
-using JWT.Serializers;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 
 namespace firenotes_api.Controllers
 {
@@ -57,6 +53,11 @@ namespace firenotes_api.Controllers
             if (user == null)
             {
                 return NotFound("A user with that email address doesn't exist.");
+            }
+
+            if (user.IsArchived)
+            {
+                return BadRequest("This user's account has been archived. Please reach out to the administrator.");
             }
 
             if (!BCrypt.Net.BCrypt.Verify(data.Password, user.HashedPassword))

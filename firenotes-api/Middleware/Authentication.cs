@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using JWT;
+using System;
 using System.Threading.Tasks;
-using firenotes_api.Configuration;
-using JWT;
-using JWT.Serializers;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using firenotes_api.Configuration;
+using Microsoft.AspNetCore.Builder;
 
 namespace firenotes_api.Middleware
 {

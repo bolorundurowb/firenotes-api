@@ -20,6 +20,8 @@ namespace firenotes_api.Models.Data
          
          public string HashedPassword { get; private set; }
 
+         public bool IsArchived { get; set; }
+
          public string Password
          {
              set
@@ -32,6 +34,7 @@ namespace firenotes_api.Models.Data
          public User()
          {
              Id = ShortId.Generate(false, true, 10);
+             IsArchived = false;
          }
      }
  }
