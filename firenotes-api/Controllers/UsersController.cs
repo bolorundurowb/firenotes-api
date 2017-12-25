@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using firenotes_api.Configuration;
+using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
 
 namespace firenotes_api.Controllers
@@ -48,7 +49,7 @@ namespace firenotes_api.Controllers
         
         // PUT api/users/:id
         [Route("{id}"), HttpPut]
-        public async Task<IActionResult> Update(string id)
+        public async Task<IActionResult> Update(string id, [FromBody] UserBindingModel bm)
         {
             var callerId = HttpContext.Items["id"].ToString();
 
@@ -63,11 +64,21 @@ namespace firenotes_api.Controllers
             var filter = filterBuilder.Eq("_id", id);
             
             var updateBuilder = Builders<User>.Update;
-            var update = updateBuilder.Set("IsArchived", true);
+            var update = updateBuilder.Set("IsArchived", false);
+            
+            if (!string.IsNullOrWhiteSpace(bm.FirstName))
+            {
+                 update = update.Set("FirstName", bm.FirstName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(bm.LastName))
+            {
+                update = update.Set("LastName", bm.LastName);
+            }
             
             await usersCollection.UpdateOneAsync(filter, update);
             
-            return Ok();
+            return Ok("Profile successfully updated.");
         }
     }
 }
