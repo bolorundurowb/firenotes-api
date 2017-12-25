@@ -45,7 +45,7 @@ namespace firenotes_api.Controllers
             var update = updateBuilder.Set("IsArchived", true);
 
             var email = EmailTemplates.GetArchivedAccountEmail();
-            var result = await Email.Send(user.Email, "Archived Account", email);
+            var result = await Email.SendAsync(user.Email, "Archived Account", email);
             if (result.Count == 0)
             {
                 _logger.LogInformation("Forgot password email sent successfully.");
