@@ -135,6 +135,7 @@ namespace firenotes_api.Controllers
             return Ok(result);
         }
 
+        // POST api/auth/forgot-password
         [Route("forgot-password"), HttpPost]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordBindingModel bm)
         {
@@ -171,6 +172,7 @@ namespace firenotes_api.Controllers
             return Ok("Your password reset email has been sent.");
         }
 
+        // POST api/auth/reset-password
         [Route("reset-password"), HttpPost]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordBindingModel bm)
         {
