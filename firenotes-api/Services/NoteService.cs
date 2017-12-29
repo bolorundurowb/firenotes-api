@@ -10,7 +10,7 @@ namespace firenotes_api.Services
 {
     public class NoteService : INoteService
     {
-        private IMongoDatabase _mongoDatabase;
+        private readonly IMongoDatabase _mongoDatabase;
         
         public NoteService()
         {

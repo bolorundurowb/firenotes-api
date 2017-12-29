@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using AutoMapper;
 using dotenv.net;
+using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
 using firenotes_api.Middleware;
 using firenotes_api.Services;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 
 namespace firenotes_api
 {
@@ -28,11 +30,20 @@ namespace firenotes_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+            {
+                builder
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin()
+                    .AllowCredentials()
+                    .AllowAnyHeader();
+            }))
             services.AddAutoMapper();
             services.AddMvc();
 
             // register the services
             services.AddScoped<INoteService, NoteService>();
+            services.AddScoped<IUserService, UserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,6 +61,8 @@ namespace firenotes_api
             {
                 DatabaseName = "firenotes-test-db";
             }
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthenticationMiddleware();
             
