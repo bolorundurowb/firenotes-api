@@ -22,7 +22,6 @@ namespace firenotes_api.Services
         public async Task<List<Note>> GetNotes(string owner, NoteQueryModel query)
         {
             var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
-
             var filterBuilder = Builders<Note>.Filter;
             var filter = filterBuilder.Eq("Owner", owner);
             
@@ -32,7 +31,6 @@ namespace firenotes_api.Services
                          & filterBuilder.Gte(x => x.Created, query.Date)
                          & filterBuilder.Lt(x => x.Created, query.Date.AddDays(1));
             }
-
             if (!string.IsNullOrWhiteSpace(query.Tag))
             {
                 filter = filter
@@ -52,29 +50,58 @@ namespace firenotes_api.Services
             return await notesCollection.Find(x => x.Id == id && x.Owner == owner).FirstOrDefaultAsync();
         }
 
-        public void Add(Note note)
+        public async Task Add(Note note)
         {
-            throw new System.NotImplementedException();
+            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
+            await notesCollection.InsertOneAsync(note);
         }
 
-        public void Update(string id, string owner, Note note)
+        public async Task Update(string id, string owner, NoteBindingModel note)
         {
-            throw new System.NotImplementedException();
+            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
+            var filterBuilder = Builders<Note>.Filter;
+            var filter = filterBuilder.Eq("_id", id) & filterBuilder.Eq("Owner", owner);
+            var updateBuilder = Builders<Note>.Update;
+            var update = updateBuilder.Set("Tags", note.Tags);
+
+            if (!string.IsNullOrWhiteSpace(note.Title))
+            {
+                update = update.Set("Title", note.Title);
+            }
+            if (!string.IsNullOrWhiteSpace(note.Details))
+            {
+                update = update.Set("Details", note.Details);
+            }
+            
+            await notesCollection.UpdateOneAsync(filter, update);
         }
 
-        public void SetFavorite(string id, string owner)
+        public async Task SetFavorite(string id, string owner)
         {
-            throw new System.NotImplementedException();
+            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
+            var filterBuilder = Builders<Note>.Filter;
+            var filter = filterBuilder.Eq("_id", id) & filterBuilder.Eq("Owner", owner);
+            var updateBuilder = Builders<Note>.Update;
+            var update = updateBuilder.Set("IsFavorited", true);
+            await notesCollection.UpdateOneAsync(filter, update);
         }
 
-        public void SetUnFavorite(string id, string owner)
+        public async Task SetUnFavorite(string id, string owner)
         {
-            throw new System.NotImplementedException();
+            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
+            var filterBuilder = Builders<Note>.Filter;
+            var filter = filterBuilder.Eq("_id", id) & filterBuilder.Eq("Owner", owner);
+            var updateBuilder = Builders<Note>.Update;
+            var update = updateBuilder.Set("IsFavorited", false);
+            await notesCollection.UpdateOneAsync(filter, update);
         }
 
-        public void Delete(string id, string owner)
+        public async Task Delete(string id, string owner)
         {
-            throw new System.NotImplementedException();
+            var filterBuilder = Builders<Note>.Filter;
+            var filter = filterBuilder.Eq("_id", id) & filterBuilder.Eq("Owner", owner);
+            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
+            await notesCollection.DeleteOneAsync(filter);
         }
     }
 }

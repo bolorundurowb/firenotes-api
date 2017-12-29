@@ -11,14 +11,14 @@ namespace firenotes_api.Interfaces
 
         Task<Note> GetNote(string id, string owner);
 
-        void Add(Note note);
+        Task Add(Note note);
 
-        void Update(string id, string owner, Note note);
+        Task Update(string id, string owner, NoteBindingModel note);
 
-        void SetFavorite(string id, string owner);
+        Task SetFavorite(string id, string owner);
         
-        void SetUnFavorite(string id, string owner);
+        Task SetUnFavorite(string id, string owner);
 
-        void Delete(string id, string owner);
+        Task Delete(string id, string owner);
     }
 }
