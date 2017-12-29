@@ -15,7 +15,6 @@ namespace firenotes_api.Controllers
     [Route("api/[controller]")]
     public class NotesController : Controller
     {
-        private IMongoDatabase _mongoDatabase;
         private INoteService _noteService;
         private IMapper _mapper;
         
@@ -23,9 +22,6 @@ namespace firenotes_api.Controllers
         {
             _mapper = mapper;
             _noteService = noteService;
-            var dbPath = Config.DbPath;
-            var mongoClient = new MongoClient(dbPath);
-            _mongoDatabase = mongoClient.GetDatabase(Startup.DatabaseName);
         }
         
         // GET api/notes

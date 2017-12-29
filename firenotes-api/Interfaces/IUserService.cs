@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
 
 namespace firenotes_api.Interfaces
@@ -7,8 +8,8 @@ namespace firenotes_api.Interfaces
     {
         Task<User> GetUser(string id);
 
-        void Update(string id, User user);
+        Task Update(string id, UserBindingModel user);
 
-        void Archive(string id);
+        Task Archive(string id);
     }
 }
