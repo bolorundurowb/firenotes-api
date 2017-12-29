@@ -46,9 +46,10 @@ namespace firenotes_api.Services
                 .ToListAsync();
         }
 
-        public Note GetNote(string id, string owner)
+        public async Task<Note> GetNote(string id, string owner)
         {
-            throw new System.NotImplementedException();
+            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
+            return await notesCollection.Find(x => x.Id == id && x.Owner == owner).FirstOrDefaultAsync();
         }
 
         public void Add(Note note)

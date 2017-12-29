@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using AutoMapper;
 using dotenv.net;
+using firenotes_api.Interfaces;
 using firenotes_api.Middleware;
+using firenotes_api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +30,9 @@ namespace firenotes_api
         {
             services.AddAutoMapper();
             services.AddMvc();
+
+            // register the services
+            services.AddScoped<INoteService, NoteService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

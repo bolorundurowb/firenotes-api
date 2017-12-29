@@ -42,8 +42,7 @@ namespace firenotes_api.Controllers
         public async Task<IActionResult> GetOne(string id)
         {
             var callerId = HttpContext.Items["id"].ToString();
-            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
-            var note = await notesCollection.Find(x => x.Id == id && x.Owner == callerId).FirstOrDefaultAsync();
+            var note = await _noteService.GetNote(id, callerId);
 
             if (note == null)
             {
