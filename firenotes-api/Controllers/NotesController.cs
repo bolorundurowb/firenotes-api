@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Configuration;
+using firenotes_api.Interfaces;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
 using firenotes_api.Models.View;
@@ -15,11 +16,13 @@ namespace firenotes_api.Controllers
     public class NotesController : Controller
     {
         private IMongoDatabase _mongoDatabase;
+        private INoteService _noteService;
         private IMapper _mapper;
         
-        public NotesController(IMapper mapper)
+        public NotesController(IMapper mapper, INoteService noteService)
         {
             _mapper = mapper;
+            _noteService = noteService;
             var dbPath = Config.DbPath;
             var mongoClient = new MongoClient(dbPath);
             _mongoDatabase = mongoClient.GetDatabase(Startup.DatabaseName);
@@ -30,30 +33,7 @@ namespace firenotes_api.Controllers
         public async Task<IActionResult> GetAll([FromQuery] NoteQueryModel query)
         {
             var callerId = HttpContext.Items["id"].ToString();
-            var notesCollection = _mongoDatabase.GetCollection<Note>("notes");
-
-            var filterBuilder = Builders<Note>.Filter;
-            var filter = filterBuilder.Eq("Owner", callerId);
-            
-            if (query.Date.Year != 0001)
-            {
-                filter = filter 
-                             & filterBuilder.Gte(x => x.Created, query.Date)
-                             & filterBuilder.Lt(x => x.Created, query.Date.AddDays(1));
-            }
-
-            if (!string.IsNullOrWhiteSpace(query.Tag))
-            {
-                filter = filter
-                         & filterBuilder.AnyEq(x => x.Tags, query.Tag);
-            }
-            
-            var notes = await notesCollection.Find(filter)
-                .Limit(query.Limit)
-                .Skip(query.Skip)
-                .Sort("{Created: -1}")
-                .ToListAsync();
-            
+            var notes = await _noteService.GetNotes(callerId, query);
             return Ok(_mapper.Map<List<NoteViewModel>>(notes));
         }
         

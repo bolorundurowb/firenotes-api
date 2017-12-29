@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
 
 namespace firenotes_api.Interfaces
 {
     public interface INoteService
     {
-        List<Note> GetNotes(string owner);
+        Task<List<Note>> GetNotes(string owner, NoteQueryModel query);
 
-        Note GetNote(string id, string owner);
+        Task<Note> GetNote(string id, string owner);
 
         void Add(Note note);
 
