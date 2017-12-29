@@ -37,7 +37,7 @@ namespace firenotes_api
                     .AllowAnyOrigin()
                     .AllowCredentials()
                     .AllowAnyHeader();
-            }))
+            }));
             services.AddAutoMapper();
             services.AddMvc();
 
