@@ -10,8 +10,8 @@ namespace firenotes_api.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        private IUserService _userService;
-        private ILogger _logger;
+        private readonly IUserService _userService;
+        private readonly ILogger _logger;
 
         public UsersController(ILogger<AuthController> logger, IUserService userService)
         {
@@ -29,7 +29,8 @@ namespace firenotes_api.Controllers
             {
                 return BadRequest("You can only archive your own account.");
             }
-            
+
+            await _userService.Archive(id);
             var user = await _userService.GetUser(id);
             var email = EmailTemplates.GetArchivedAccountEmail();
             var result = await Email.SendAsync(user.Email, "Archived Account", email);

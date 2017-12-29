@@ -15,8 +15,8 @@ namespace firenotes_api.Controllers
     [Route("api/[controller]")]
     public class NotesController : Controller
     {
-        private INoteService _noteService;
-        private IMapper _mapper;
+        private readonly INoteService _noteService;
+        private readonly IMapper _mapper;
         
         public NotesController(IMapper mapper, INoteService noteService)
         {

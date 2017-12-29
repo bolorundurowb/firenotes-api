@@ -9,7 +9,7 @@ namespace firenotes_api.Services
 {
     public class UserService : IUserService
     {
-        private IMongoDatabase _mongoDatabase;
+        private readonly IMongoDatabase _mongoDatabase;
         
         public UserService()
         {
