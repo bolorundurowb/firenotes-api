@@ -13,5 +13,7 @@ namespace firenotes_api.Configuration
         public static string MandrillApiKey => Environment.GetEnvironmentVariable("MANDRILL_API_KEY");
         
         public static string ServiceEmail => Environment.GetEnvironmentVariable("SERVICE_EMAIL");
+
+        public static string DbName => Environment.GetEnvironmentVariable("DBNAME");
     }
 }

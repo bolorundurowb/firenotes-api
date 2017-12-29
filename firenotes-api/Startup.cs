@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using AutoMapper;
 using dotenv.net;
+using firenotes_api.Configuration;
 using firenotes_api.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,7 +34,7 @@ namespace firenotes_api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            DatabaseName = "firenotes-prod-db";
+            DatabaseName = Config.DbName;
             
             if (env.IsDevelopment())
             {
