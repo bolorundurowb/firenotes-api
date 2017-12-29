@@ -1,11 +1,8 @@
-﻿using AutoMapper;
-using MongoDB.Driver;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
 using firenotes_api.Models.Binding;
-using firenotes_api.Models.Data;
 using Microsoft.Extensions.Logging;
 
 namespace firenotes_api.Controllers
