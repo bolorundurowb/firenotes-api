@@ -33,7 +33,7 @@ namespace firenotes_api.Controllers
             await _userService.Archive(id);
             var user = await _userService.GetUser(id);
             var email = EmailTemplates.GetArchivedAccountEmail();
-            var result = await Email.SendAsync(user.Email, "Archived Account", email);
+            var result = await EmailService.SendAsync(user.Email, "Archived Account", email);
             
             if (result.Count == 0)
             {

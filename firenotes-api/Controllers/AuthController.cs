@@ -110,7 +110,7 @@ namespace firenotes_api.Controllers
             }
 
             var email = EmailTemplates.GetWelcomeEmail();
-            var emailStatus = await Email.SendAsync(data.Email, "Forgot Password", email);
+            var emailStatus = await EmailService.SendAsync(data.Email, "Forgot Password", email);
             if (emailStatus.Count == 0)
             {
                 _logger.LogInformation("Forgot password email sent successfully.");
@@ -159,7 +159,7 @@ namespace firenotes_api.Controllers
 
             var token = Helpers.GenerateToken("email", bm.Email, 12);
             var email = EmailTemplates.GetForgotPasswordEmail($"{Config.FrontEndUrl}/auth/reset-password?token={token}");
-            var result = await Email.SendAsync(bm.Email, "Forgot Password", email);
+            var result = await EmailService.SendAsync(bm.Email, "Forgot Password", email);
             if (result.Count == 0)
             {
                 _logger.LogInformation("Forgot password email sent successfully.");
@@ -220,7 +220,7 @@ namespace firenotes_api.Controllers
                 }
                 
                 var filterBuilder = Builders<User>.Filter;
-                var filter = filterBuilder.Eq("Email", emailAddress);
+                var filter = filterBuilder.Eq("EmailService", emailAddress);
                 
                 var updateBuilder = Builders<User>.Update;
                 var update = updateBuilder.Set("Password", bm.Password);
@@ -228,7 +228,7 @@ namespace firenotes_api.Controllers
                 await usersCollection.UpdateOneAsync(filter, update);
 
                 var email = EmailTemplates.GetResetPasswordEmail(user.FirstName);
-                var result = await Email.SendAsync(user.Email, "Password Reset", email);
+                var result = await EmailService.SendAsync(user.Email, "Password Reset", email);
                 if (result.Count == 0)
                 {
                     _logger.LogInformation("Forgot password email sent successfully.");
