@@ -30,6 +30,12 @@ namespace firenotes_api.Services
             return await usersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
         }
 
+        public async Task Add(User user)
+        {
+            var usersCollection = _mongoDatabase.GetCollection<User>("users");
+            await usersCollection.InsertOneAsync(user);
+        }
+
         public async Task Update(string id, UserBindingModel user)
         {
             var usersCollection = _mongoDatabase.GetCollection<User>("users");

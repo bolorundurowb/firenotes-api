@@ -16,15 +16,17 @@ namespace firenotes_api.Controllers
     [Route("api/[controller]")]
     public class AuthController : Controller
     {
-        private ILogger _logger;
-        private IMapper _mapper;
-        private IEmailService _emailService;
-        private IMongoDatabase _mongoDatabase;
+        private readonly ILogger _logger;
+        private readonly IMapper _mapper;
+        private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
+        private readonly IMongoDatabase _mongoDatabase;
 
-        public AuthController(IMapper mapper, ILogger<AuthController> logger, IEmailService emailService)
+        public AuthController(IMapper mapper, ILogger<AuthController> logger, IEmailService emailService, IUserService userService)
         {
             _logger = logger;
             _mapper = mapper;
+            _userService = userService;
             _emailService = emailService;
 
             var dbPath = Config.DbPath;
@@ -50,7 +52,8 @@ namespace firenotes_api.Controllers
             {
                 return BadRequest("A password is required.");
             }
-            
+
+            var user = await _userService.GetUserByEmail(data.Email);
             
             if (user == null)
             {
@@ -98,8 +101,7 @@ namespace firenotes_api.Controllers
             }
 
 
-            var usersCollection = _mongoDatabase.GetCollection<User>("users");
-            var user = await usersCollection.Find(x => x.Email == data.Email).FirstOrDefaultAsync();
+            var user = await _userService.GetUserByEmail(data.Email);
 
             if (user != null)
             {
@@ -122,8 +124,8 @@ namespace firenotes_api.Controllers
                 Email = data.Email,
                 Password = data.Password
             };
-            await usersCollection.InsertOneAsync(user);
-            
+
+            await _userService.Add(user);
             var token = Helpers.GenerateToken("id", user.Id);
             var result = _mapper.Map<AuthViewModel>(user);
             result.Token = token;
