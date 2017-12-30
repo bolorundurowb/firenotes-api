@@ -1,12 +1,12 @@
 ﻿using System;
 using AutoMapper;
-using MongoDB.Driver;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using firenotes_api.Models.View;
 using firenotes_api.Models.Data;
 using Microsoft.AspNetCore.Http;
 using firenotes_api.Configuration;
+using firenotes_api.Interfaces;
 using firenotes_api.Models.Binding;
 using Microsoft.Extensions.Logging;
 
@@ -15,18 +15,17 @@ namespace firenotes_api.Controllers
     [Route("api/[controller]")]
     public class AuthController : Controller
     {
-        private IMongoDatabase _mongoDatabase;
-        private IMapper _mapper;
-        private ILogger _logger;
+        private readonly ILogger _logger;
+        private readonly IMapper _mapper;
+        private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
 
-        public AuthController(IMapper mapper, ILogger<AuthController> logger)
+        public AuthController(IMapper mapper, ILogger<AuthController> logger, IEmailService emailService, IUserService userService)
         {
-            _mapper = mapper;
             _logger = logger;
-            
-            var dbPath = Config.DbPath;
-            var mongoClient = new MongoClient(dbPath);
-            _mongoDatabase = mongoClient.GetDatabase(Startup.DatabaseName);
+            _mapper = mapper;
+            _userService = userService;
+            _emailService = emailService;
         }
         
         // POST api/auth/login
@@ -47,9 +46,9 @@ namespace firenotes_api.Controllers
             {
                 return BadRequest("A password is required.");
             }
+
+            var user = await _userService.GetUserByEmail(data.Email);
             
-            var usersCollection = _mongoDatabase.GetCollection<User>("users");
-            var user = await usersCollection.Find(x => x.Email == data.Email).FirstOrDefaultAsync();
             if (user == null)
             {
                 return NotFound("A user with that email address doesn't exist.");
@@ -96,8 +95,7 @@ namespace firenotes_api.Controllers
             }
 
 
-            var usersCollection = _mongoDatabase.GetCollection<User>("users");
-            var user = await usersCollection.Find(x => x.Email == data.Email).FirstOrDefaultAsync();
+            var user = await _userService.GetUserByEmail(data.Email);
 
             if (user != null)
             {
@@ -110,15 +108,8 @@ namespace firenotes_api.Controllers
             }
 
             var email = EmailTemplates.GetWelcomeEmail();
-            var emailStatus = await Email.SendAsync(data.Email, "Forgot Password", email);
-            if (emailStatus.Count == 0)
-            {
-                _logger.LogInformation("Forgot password email sent successfully.");
-            }
-            else
-            {
-                _logger.LogError("An error occurred when sending ");
-            }
+            await _emailService.SendAsync(data.Email, "Forgot Password", email);
+             _logger.LogInformation("Forgot password email sent successfully.");
             
             user = new User
             {
@@ -127,8 +118,8 @@ namespace firenotes_api.Controllers
                 Email = data.Email,
                 Password = data.Password
             };
-            await usersCollection.InsertOneAsync(user);
-            
+
+            await _userService.Add(user);
             var token = Helpers.GenerateToken("id", user.Id);
             var result = _mapper.Map<AuthViewModel>(user);
             result.Token = token;
@@ -148,9 +139,8 @@ namespace firenotes_api.Controllers
             {
                 return BadRequest("An email address is required.");
             }
-            
-            var usersCollection = _mongoDatabase.GetCollection<User>("users");
-            var user = await usersCollection.Find(x => x.Email == bm.Email).FirstOrDefaultAsync();
+
+            var user = await _userService.GetUserByEmail(bm.Email);
             
             if (user == null)
             {
@@ -159,15 +149,8 @@ namespace firenotes_api.Controllers
 
             var token = Helpers.GenerateToken("email", bm.Email, 12);
             var email = EmailTemplates.GetForgotPasswordEmail($"{Config.FrontEndUrl}/auth/reset-password?token={token}");
-            var result = await Email.SendAsync(bm.Email, "Forgot Password", email);
-            if (result.Count == 0)
-            {
-                _logger.LogInformation("Forgot password email sent successfully.");
-            }
-            else
-            {
-                _logger.LogError("An error occurred when sending ");
-            }
+            await _emailService.SendAsync(bm.Email, "Forgot Password", email);
+            _logger.LogInformation("Forgot password email sent successfully.");
 
             return Ok("Your password reset email has been sent.");
         }
@@ -210,33 +193,18 @@ namespace firenotes_api.Controllers
                 {
                     return BadRequest("The email is invalid.");
                 }
-                
-                var usersCollection = _mongoDatabase.GetCollection<User>("users");
-                var user = await usersCollection.Find(x => x.Email == emailAddress).FirstOrDefaultAsync();
+
+                var user = await _userService.GetUserByEmail(emailAddress);
 
                 if (user == null)
                 {
                     return NotFound();
                 }
-                
-                var filterBuilder = Builders<User>.Filter;
-                var filter = filterBuilder.Eq("Email", emailAddress);
-                
-                var updateBuilder = Builders<User>.Update;
-                var update = updateBuilder.Set("Password", bm.Password);
 
-                await usersCollection.UpdateOneAsync(filter, update);
-
+                await _userService.SetPassword(emailAddress, bm.Password);
                 var email = EmailTemplates.GetResetPasswordEmail(user.FirstName);
-                var result = await Email.SendAsync(user.Email, "Password Reset", email);
-                if (result.Count == 0)
-                {
-                    _logger.LogInformation("Forgot password email sent successfully.");
-                }
-                else
-                {
-                    _logger.LogError("An error occurred when sending ");
-                }
+                await _emailService.SendAsync(user.Email, "Password Reset", email);
+                _logger.LogInformation("Forgot password email sent successfully.");
             }
             catch (Exception e)
             {

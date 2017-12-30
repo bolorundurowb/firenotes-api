@@ -21,7 +21,19 @@ namespace firenotes_api.Services
         public async Task<User> GetUser(string id)
         {
             var usersCollection = _mongoDatabase.GetCollection<User>("users");
-            return await usersCollection.Find(x => x.Id == id).FirstAsync();
+            return await usersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<User> GetUserByEmail(string email)
+        {
+            var usersCollection = _mongoDatabase.GetCollection<User>("users");
+            return await usersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
+        }
+
+        public async Task Add(User user)
+        {
+            var usersCollection = _mongoDatabase.GetCollection<User>("users");
+            await usersCollection.InsertOneAsync(user);
         }
 
         public async Task Update(string id, UserBindingModel user)
@@ -41,6 +53,18 @@ namespace firenotes_api.Services
                 update = update.Set("LastName", user.LastName);
             }
             
+            await usersCollection.UpdateOneAsync(filter, update);
+        }
+
+        public async Task SetPassword(string email, string password)
+        {
+            var usersCollection = _mongoDatabase.GetCollection<User>("users");
+            var filterBuilder = Builders<User>.Filter;
+            var filter = filterBuilder.Eq("Email", email);
+                
+            var updateBuilder = Builders<User>.Update;
+            var update = updateBuilder.Set("Password", password);
+
             await usersCollection.UpdateOneAsync(filter, update);
         }
 
