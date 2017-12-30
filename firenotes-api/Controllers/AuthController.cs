@@ -51,8 +51,7 @@ namespace firenotes_api.Controllers
                 return BadRequest("A password is required.");
             }
             
-            var usersCollection = _mongoDatabase.GetCollection<User>("users");
-            var user = await usersCollection.Find(x => x.Email == data.Email).FirstOrDefaultAsync();
+            
             if (user == null)
             {
                 return NotFound("A user with that email address doesn't exist.");

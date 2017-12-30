@@ -8,6 +8,8 @@ namespace firenotes_api.Interfaces
     {
         Task<User> GetUser(string id);
 
+        Task<User> GetUserByEmail(string email);
+        
         Task Update(string id, UserBindingModel user);
 
         Task Archive(string id);
