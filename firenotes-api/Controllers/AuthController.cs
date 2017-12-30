@@ -1,6 +1,5 @@
 ﻿using System;
 using AutoMapper;
-using MongoDB.Driver;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using firenotes_api.Models.View;
@@ -20,7 +19,6 @@ namespace firenotes_api.Controllers
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IEmailService _emailService;
-        private readonly IMongoDatabase _mongoDatabase;
 
         public AuthController(IMapper mapper, ILogger<AuthController> logger, IEmailService emailService, IUserService userService)
         {
@@ -28,10 +26,6 @@ namespace firenotes_api.Controllers
             _mapper = mapper;
             _userService = userService;
             _emailService = emailService;
-
-            var dbPath = Config.DbPath;
-            var mongoClient = new MongoClient(dbPath);
-            _mongoDatabase = mongoClient.GetDatabase(Startup.DatabaseName);
         }
         
         // POST api/auth/login
@@ -145,9 +139,8 @@ namespace firenotes_api.Controllers
             {
                 return BadRequest("An email address is required.");
             }
-            
-            var usersCollection = _mongoDatabase.GetCollection<User>("users");
-            var user = await usersCollection.Find(x => x.Email == bm.Email).FirstOrDefaultAsync();
+
+            var user = await _userService.GetUserByEmail(bm.Email);
             
             if (user == null)
             {
@@ -200,23 +193,15 @@ namespace firenotes_api.Controllers
                 {
                     return BadRequest("The email is invalid.");
                 }
-                
-                var usersCollection = _mongoDatabase.GetCollection<User>("users");
-                var user = await usersCollection.Find(x => x.Email == emailAddress).FirstOrDefaultAsync();
+
+                var user = await _userService.GetUserByEmail(emailAddress);
 
                 if (user == null)
                 {
                     return NotFound();
                 }
-                
-                var filterBuilder = Builders<User>.Filter;
-                var filter = filterBuilder.Eq("EmailService", emailAddress);
-                
-                var updateBuilder = Builders<User>.Update;
-                var update = updateBuilder.Set("Password", bm.Password);
 
-                await usersCollection.UpdateOneAsync(filter, update);
-
+                await _userService.SetPassword(emailAddress, bm.Password);
                 var email = EmailTemplates.GetResetPasswordEmail(user.FirstName);
                 await _emailService.SendAsync(user.Email, "Password Reset", email);
                 _logger.LogInformation("Forgot password email sent successfully.");

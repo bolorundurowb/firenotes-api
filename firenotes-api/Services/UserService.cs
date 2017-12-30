@@ -56,6 +56,18 @@ namespace firenotes_api.Services
             await usersCollection.UpdateOneAsync(filter, update);
         }
 
+        public async Task SetPassword(string email, string password)
+        {
+            var usersCollection = _mongoDatabase.GetCollection<User>("users");
+            var filterBuilder = Builders<User>.Filter;
+            var filter = filterBuilder.Eq("Email", email);
+                
+            var updateBuilder = Builders<User>.Update;
+            var update = updateBuilder.Set("Password", password);
+
+            await usersCollection.UpdateOneAsync(filter, update);
+        }
+
         public async Task Archive(string id)
         {
             var usersCollection = _mongoDatabase.GetCollection<User>("users");

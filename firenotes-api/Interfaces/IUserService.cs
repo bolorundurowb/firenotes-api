@@ -14,6 +14,8 @@ namespace firenotes_api.Interfaces
         
         Task Update(string id, UserBindingModel user);
 
+        Task SetPassword(string email, string password);
+
         Task Archive(string id);
     }
 }
