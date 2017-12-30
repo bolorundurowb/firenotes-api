@@ -10,12 +10,14 @@ namespace firenotes_api.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        private readonly IUserService _userService;
         private readonly ILogger _logger;
+        private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
 
-        public UsersController(ILogger<AuthController> logger, IUserService userService)
+        public UsersController(ILogger<AuthController> logger, IUserService userService, IEmailService emailService)
         {
             _logger = logger;
+            _emailService = emailService;
             _userService = userService;
         }
         
@@ -33,16 +35,8 @@ namespace firenotes_api.Controllers
             await _userService.Archive(id);
             var user = await _userService.GetUser(id);
             var email = EmailTemplates.GetArchivedAccountEmail();
-            var result = await EmailService.SendAsync(user.Email, "Archived Account", email);
-            
-            if (result.Count == 0)
-            {
-                _logger.LogInformation("Forgot password email sent successfully.");
-            }
-            else
-            {
-                _logger.LogError("An error occurred when sending ");
-            }
+            await _emailService.SendAsync(user.Email, "Archived Account", email);
+            _logger.LogInformation("Forgot password email sent successfully.");
             
             return Ok();
         }

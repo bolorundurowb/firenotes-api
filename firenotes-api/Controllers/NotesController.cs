@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
 using firenotes_api.Models.View;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 
 namespace firenotes_api.Controllers
 {
