@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
+using dotenv.net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 
@@ -17,6 +19,9 @@ namespace firenotes_api.Tests.Integration
                 .UseStartup<Startup>();
             var server = new TestServer(webBuilder);
             Client = server.CreateClient();
+            
+            string fullPath = Path.GetFullPath(".env");
+            DotEnv.Config(false, fullPath);
             
             Environment.SetEnvironmentVariable("MONGO_URL", "mongodb://localhost:27017/");
             Environment.SetEnvironmentVariable("SECRET", "test-secret");

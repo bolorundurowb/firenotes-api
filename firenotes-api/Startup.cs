@@ -1,6 +1,8 @@
 ﻿using System.IO;
+using System.Text;
 using AutoMapper;
 using dotenv.net;
+using dotenv.net.DependencyInjection.Extensions;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
 using firenotes_api.Middleware;
@@ -19,9 +21,6 @@ namespace firenotes_api
         
         public Startup(IConfiguration configuration)
         {
-            string fullPath = Path.GetFullPath(".env");
-            DotEnv.Config(false, fullPath);
-            
             Configuration = configuration;
         }
 
@@ -40,6 +39,15 @@ namespace firenotes_api
             }));
             services.AddAutoMapper();
             services.AddMvc();
+            
+            // read in the environment vars
+            services.AddEnv(builder =>
+            {
+                builder
+                    .AddEncoding(Encoding.Default)
+                    .AddEnvFile(Path.GetFullPath(".env"))
+                    .AddThrowOnError(false);
+            });
 
             // register the services
             services.AddScoped<INoteService, NoteService>();
