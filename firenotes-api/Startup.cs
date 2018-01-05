@@ -1,8 +1,11 @@
 ﻿using System.IO;
+using System.Text;
 using AutoMapper;
-using dotenv.net;
+using dotenv.net.DependencyInjection.Extensions;
 using firenotes_api.Configuration;
+using firenotes_api.Interfaces;
 using firenotes_api.Middleware;
+using firenotes_api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -16,9 +19,6 @@ namespace firenotes_api
         
         public Startup(IConfiguration configuration)
         {
-            string fullPath = Path.GetFullPath(".env");
-            DotEnv.Config(false, fullPath);
-            
             Configuration = configuration;
         }
 
@@ -27,8 +27,30 @@ namespace firenotes_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+            {
+                builder
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin()
+                    .AllowCredentials()
+                    .AllowAnyHeader();
+            }));
             services.AddAutoMapper();
             services.AddMvc();
+            
+            // read in the environment vars
+            services.AddEnv(builder =>
+            {
+                builder
+                    .AddEncoding(Encoding.Default)
+                    .AddEnvFile(Path.GetFullPath(".env"))
+                    .AddThrowOnError(false);
+            });
+
+            // register the services
+            services.AddScoped<INoteService, NoteService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IEmailService, EmailService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,6 +68,8 @@ namespace firenotes_api
             {
                 DatabaseName = "firenotes-test-db";
             }
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthenticationMiddleware();
             
