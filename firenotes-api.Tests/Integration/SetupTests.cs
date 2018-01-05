@@ -19,7 +19,7 @@ namespace firenotes_api.Tests.Integration
             mongoClient.DropDatabase("firenotes-test-db");
             
             string fullPath = Path.GetFullPath("./../../../../.env");
-            DotEnv.Config(true, fullPath);
+            DotEnv.Config(false, fullPath);
 
             await CreateDefaultAuthUser();
         }
