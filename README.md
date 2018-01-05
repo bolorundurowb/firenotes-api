@@ -10,3 +10,27 @@ This is a lightweight proof of cconcept and can be forked, cloned and modified t
 - All API routes are prepended with `/api/`
 - All note routes are protected (as expected).
 - Tests are written with the `NUnit` framework, with `FluentAssertions` used for the assertions.
+
+## Building
+
+To build the app, just clone the repo and run
+
+```csharp
+dotnet build firenotes-api
+```
+
+To run the app, run 
+```csharp
+dotnet run --project firenotes-api
+```
+
+## Testing
+
+To run the tests, do the following:
+
+1. Add a`.env` file to the root of the project, where the `firenotes-api.sln` file is. Add the necessary environment variables e.g `Mailgun`, `Secret` etc
+
+2. Run the test with the following command
+```csharp
+dotnet test firenotes-api.Tests
+```
