@@ -1,6 +1,8 @@
-﻿using System.Net.Http;
+﻿using System.IO;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using dotenv.net;
 using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -15,6 +17,9 @@ namespace firenotes_api.Tests.Integration
         {
             var mongoClient = new MongoClient("mongodb://localhost:27017/");		
             mongoClient.DropDatabase("firenotes-test-db");
+            
+            string fullPath = Path.GetFullPath("./../../../../.env");
+            DotEnv.Config(false, fullPath);
 
             await CreateDefaultAuthUser();
         }
