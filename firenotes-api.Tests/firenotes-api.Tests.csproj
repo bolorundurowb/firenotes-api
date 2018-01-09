@@ -18,4 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\firenotes-api\firenotes-api.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Unit\Configuration" />
+  </ItemGroup>
 </Project>
