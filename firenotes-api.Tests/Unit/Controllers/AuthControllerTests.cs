@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
+using firenotes_api.Configuration;
 using firenotes_api.Controllers;
 using firenotes_api.Interfaces;
 using firenotes_api.Models.Binding;
@@ -185,6 +187,35 @@ namespace firenotes_api.Tests.Unit.Controllers
             var badResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
             var message = badResult.Value.Should().BeAssignableTo<string>().Subject;
             message.Should().Be("The passwords must match.");
+        }
+
+        [Test]
+        public async Task ResetPassword_BadRequest_When()
+        {
+            Environment.SetEnvironmentVariable("SECRET", "xxxx");
+            var token = Helpers.GenerateToken("id", "xxxx", 10);
+            
+            var userService = new Mock<IUserService>();
+            var emailService = new Mock<IEmailService>();
+            var mapperService = new Mock<IMapper>();
+            var loggerService = new Mock<ILogger<AuthController>>();
+
+            var controller = new AuthController(
+                mapperService.Object,
+                loggerService.Object,
+                emailService.Object,
+                userService.Object
+            );
+
+            var result = await controller.ResetPassword(new ResetPasswordBindingModel
+            {
+                Token = token,
+                Password = "xxxx",
+                ConfirmPassword = "xxxx"
+            });
+            var badResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+            var message = badResult.Value.Should().BeAssignableTo<string>().Subject;
+            message.Should().Be("The email is invalid.");
         }
 
         #endregion
