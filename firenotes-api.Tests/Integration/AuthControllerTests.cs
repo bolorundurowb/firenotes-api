@@ -122,16 +122,6 @@ namespace firenotes_api.Tests.Integration
          #endregion
 
         #region ForgotPassword
-
-        [Test]
-        public async Task ForgotPassword_Should_ReturnBadReqest_When_TheEmailIsNull()
-        {
-            var payload = new LoginBindingModel { Email = " " };
-            var response = await Client.PostAsJsonAsync("/api/auth/forgot-password", payload);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("An email address is required.");
-        }
         
         [Test]
         public async Task ForgotPassword_Should_ReturnnNotFound_When_TheEmailIsNonExistent()
@@ -156,16 +146,6 @@ namespace firenotes_api.Tests.Integration
         #endregion
 
         #region ResetPassword
-
-        [Test]
-        public async Task ResetPassword_Should_ReturnBadrequest_When_TheTokenIsNull()
-        {
-            var payload = new ResetPasswordBindingModel {Token = ""};
-            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("The token is required.");
-        }
 
         [Test]
         public async Task ResetPassword_Should_ReturnBadrequest_When_ThePasswordIsNull()
