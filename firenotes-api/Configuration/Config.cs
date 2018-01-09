@@ -19,5 +19,7 @@ namespace firenotes_api.Configuration
         public static string MailgunSmtpLogin => Environment.GetEnvironmentVariable("MAILGUN_SMTP_LOGIN");
         
         public static string ServiceEmail => Environment.GetEnvironmentVariable("SERVICE_EMAIL");
+
+        public static string DbName => Environment.GetEnvironmentVariable("DBNAME");
     }
 }

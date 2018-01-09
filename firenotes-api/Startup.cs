@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Text;
 using AutoMapper;
-using dotenv.net;
 using dotenv.net.DependencyInjection.Extensions;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
@@ -11,7 +10,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
 
 namespace firenotes_api
 {
@@ -58,7 +56,7 @@ namespace firenotes_api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            DatabaseName = "firenotes-prod-db";
+            DatabaseName = Config.DbName;
             
             if (env.IsDevelopment())
             {

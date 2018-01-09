@@ -12,7 +12,7 @@ namespace firenotes_api.Tests.Integration
     [TestFixture]
     public class NotesControllerTests : BaseApiControllerTests
     {
-        private string noteId;
+        private string _noteId;
         
         [SetUp]
         public void SetUp()
@@ -111,7 +111,7 @@ namespace firenotes_api.Tests.Integration
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
 
-            noteId = note.Id;
+            _noteId = note.Id;
             
             payload = new NoteBindingModel {Title = "Title Updated", Tags = new List<string>{ "Tag1" }};
             response = await Client.PutAsJsonAsync("/api/notes/" + note.Id, payload);
@@ -152,7 +152,7 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(201)]
         public async Task FavoriteNote()
         {
-            var response = await Client.PostAsJsonAsync("/api/notes/" + noteId + "/favorite", new object());
+            var response = await Client.PostAsJsonAsync("/api/notes/" + _noteId + "/favorite", new object());
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
 
@@ -162,7 +162,7 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(202)]
         public async Task UnFavoriteNote()
         {
-            var response = await Client.PostAsJsonAsync("/api/notes/" + noteId + "/unfavorite", new object());
+            var response = await Client.PostAsJsonAsync("/api/notes/" + _noteId + "/unfavorite", new object());
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
 

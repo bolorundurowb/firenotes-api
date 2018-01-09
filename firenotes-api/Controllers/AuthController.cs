@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AutoMapper;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -187,7 +188,7 @@ namespace firenotes_api.Controllers
             try
             {
                 var json = Helpers.DecodeToken(bm.Token);
-                var emailAddress = json["email"];
+                var emailAddress = json.FirstOrDefault(x => x.Key == "email").Value;
 
                 if (string.IsNullOrWhiteSpace(emailAddress))
                 {

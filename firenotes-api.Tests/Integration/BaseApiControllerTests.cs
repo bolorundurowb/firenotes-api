@@ -6,7 +6,7 @@ namespace firenotes_api.Tests.Integration
 {
     public class BaseApiControllerTests
     {
-        protected HttpClient Client;
+        protected readonly HttpClient Client;
         protected static string Token { get; set; }
 
         protected BaseApiControllerTests()
