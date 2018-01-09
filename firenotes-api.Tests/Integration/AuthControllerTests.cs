@@ -148,47 +148,6 @@ namespace firenotes_api.Tests.Integration
         #region ResetPassword
 
         [Test]
-        public async Task ResetPassword_Should_ReturnBadrequest_When_ThePasswordIsNull()
-        {
-            var payload = new ResetPasswordBindingModel {Token = "xxxx"};
-            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("A password is required.");
-        }
-
-        [Test]
-        public async Task ResetPassword_Should_ReturnBadrequest_When_TheConfirmPasswordIsNull()
-        {
-            var payload = new ResetPasswordBindingModel {Token = "xxxx", Password = "xxxx"};
-            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("A password confirmation is required.");
-        }
-
-        [Test]
-        public async Task ResetPassword_Should_ReturnBadrequest_When_ThePasswordIsNotEqualToConfirmPassword()
-        {
-            var payload = new ResetPasswordBindingModel {Token = "xxxx", Password = "xxxx", ConfirmPassword = "xxx"};
-            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("The passwords must match.");
-        }
-
-        [Test]
-        public async Task ResetPassword_Should_ReturnBadRequest_When_TheDecodedEmailIsNull()
-        {
-            var token = Helpers.GenerateToken("email", " ");
-            var payload = new ResetPasswordBindingModel {Token = token, Password = "xxxx", ConfirmPassword = "xxxx"};
-            var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("The email is invalid.");
-        }
-
-        [Test]
         public async Task ResetPassword_Should_ReturnBadRequest_When_TheDecodedEmailDoesNotExist()
         {
             var token = Helpers.GenerateToken("email", "unknown@email.com");
