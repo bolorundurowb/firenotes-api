@@ -188,7 +188,7 @@ namespace firenotes_api.Controllers
             try
             {
                 var json = Helpers.DecodeToken(bm.Token);
-                var emailAddress = json.FirstOrDefault(x => x.Key == "email").Key;
+                var emailAddress = json.FirstOrDefault(x => x.Key == "email").Value;
 
                 if (string.IsNullOrWhiteSpace(emailAddress))
                 {
