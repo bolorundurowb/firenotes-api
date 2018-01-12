@@ -11,7 +11,7 @@ namespace firenotes_api.Interfaces
         Task<User> GetUserByEmail(string email);
 
         Task Add(User user);
-        
+
         Task Update(string id, UserBindingModel user);
 
         Task SetPassword(string email, string password);

@@ -38,7 +38,7 @@ namespace firenotes_api.Tests.Unit.Controllers
             var message = badResult.Value.Should().BeAssignableTo<string>().Subject;
             message.Should().Be("The payload must not be null.");
         }
-        
+
         [Test]
         public async Task ForgotPassword_BadRequest_WhenEmail_IsNull()
         {
@@ -64,7 +64,7 @@ namespace firenotes_api.Tests.Unit.Controllers
         }
 
         #endregion
-        
+
         #region ResetPassword
 
         [Test]
@@ -194,7 +194,7 @@ namespace firenotes_api.Tests.Unit.Controllers
         {
             Environment.SetEnvironmentVariable("SECRET", "xxxx");
             var token = Helpers.GenerateToken("id", "xxxx", 10);
-            
+
             var userService = new Mock<IUserService>();
             var emailService = new Mock<IEmailService>();
             var mapperService = new Mock<IMapper>();

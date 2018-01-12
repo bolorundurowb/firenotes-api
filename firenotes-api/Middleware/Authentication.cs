@@ -10,7 +10,7 @@ namespace firenotes_api.Middleware
     public class AuthenticationMiddleware
     {
         private readonly RequestDelegate _next;
-        
+
         public AuthenticationMiddleware(RequestDelegate next)
         {
             _next = next;
@@ -27,7 +27,7 @@ namespace firenotes_api.Middleware
                     await context.Response.WriteAsync("Sorry, a token is required to access this route.");
                     return;
                 }
-                
+
                 try
                 {
                     var json = Helpers.DecodeToken(token);

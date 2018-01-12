@@ -16,7 +16,7 @@ namespace firenotes_api.Interfaces
         Task Update(string id, string owner, NoteBindingModel note);
 
         Task SetFavorite(string id, string owner);
-        
+
         Task SetUnFavorite(string id, string owner);
 
         Task Delete(string id, string owner);

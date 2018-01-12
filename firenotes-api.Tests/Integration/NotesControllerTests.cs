@@ -13,7 +13,7 @@ namespace firenotes_api.Tests.Integration
     public class NotesControllerTests : BaseApiControllerTests
     {
         private string _noteId;
-        
+
         [SetUp]
         public void SetUp()
         {
@@ -27,7 +27,7 @@ namespace firenotes_api.Tests.Integration
         }
 
         #region Creation
-        
+
         [Test]
         public async Task BadReqestIfThePayloadHasNoTitle()
         {
@@ -37,7 +37,7 @@ namespace firenotes_api.Tests.Integration
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("A title is required.");
         }
-        
+
         [Test]
         public async Task SuccessIfThePayloadIsValid()
         {
@@ -57,14 +57,14 @@ namespace firenotes_api.Tests.Integration
         #endregion
 
         #region Retrieval
-        
+
         [Test]
         public async Task AllNotesCanBeRetrieved()
         {
             var response = await Client.GetAsync("/api/notes");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var list = await response.Content.ReadAsJsonAsync<List<NoteViewModel>>();
-            
+
             list.Count.Should().Be(2);
         }
 
@@ -75,7 +75,7 @@ namespace firenotes_api.Tests.Integration
             var response = await Client.PostAsJsonAsync("/api/notes", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
-            
+
             response = await Client.GetAsync("/api/notes/" + note.Id);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
@@ -101,7 +101,7 @@ namespace firenotes_api.Tests.Integration
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("Sorry, you either have no access to the note requested or it doesn't exist.");
         }
-        
+
         [Test, Order(200)]
         public async Task UpdatesNoteWithProperIdAndPayload()
         {
@@ -112,8 +112,8 @@ namespace firenotes_api.Tests.Integration
             var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
 
             _noteId = note.Id;
-            
-            payload = new NoteBindingModel {Title = "Title Updated", Tags = new List<string>{ "Tag1" }};
+
+            payload = new NoteBindingModel {Title = "Title Updated", Tags = new List<string> {"Tag1"}};
             response = await Client.PutAsJsonAsync("/api/notes/" + note.Id, payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
@@ -138,7 +138,7 @@ namespace firenotes_api.Tests.Integration
             var response = await Client.PostAsJsonAsync("/api/notes", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var note = await response.Content.ReadAsJsonAsync<NoteViewModel>();
-            
+
             response = await Client.DeleteAsync("/api/notes/" + note.Id);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();

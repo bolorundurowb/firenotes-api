@@ -5,7 +5,7 @@ namespace firenotes_api.Controllers
     public class DefaultController : Controller
     {
         private string response = "Welcome to the Firenotes API.";
-        
+
         // GET
         [HttpGet]
         [Route("/")]
@@ -13,7 +13,7 @@ namespace firenotes_api.Controllers
         {
             return $"{response} Start by making requests to the /api routes.";
         }
-        
+
         // GET
         [HttpGet]
         [Route("/api")]
