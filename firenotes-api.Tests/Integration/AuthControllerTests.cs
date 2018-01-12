@@ -27,7 +27,7 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task BadReqestIfTheSignUpPasswordIsNull()
         {
-            var payload = new LoginBindingModel { Email = "name@email.com", Password = "" };
+            var payload = new LoginBindingModel {Email = "name@email.com", Password = ""};
             var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -37,7 +37,7 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task BadReqestIfTheSignUpPasswordIsLessThanEightCharacters()
         {
-            var payload = new LoginBindingModel { Email = "name@email.com", Password = "12345" };
+            var payload = new LoginBindingModel {Email = "name@email.com", Password = "12345"};
             var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -47,7 +47,7 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(100)]
         public async Task SuccessfulSignUp()
         {
-            var payload = new LoginBindingModel { Email = "name@email.com", Password = "12345678" };
+            var payload = new LoginBindingModel {Email = "name@email.com", Password = "12345678"};
             var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var user = await response.Content.ReadAsJsonAsync<AuthViewModel>();
@@ -62,7 +62,7 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(101)]
         public async Task ConflictIfAUserWithTheEmailExists()
         {
-            var payload = new LoginBindingModel { Email = "name@email.com", Password = "123456789" };
+            var payload = new LoginBindingModel {Email = "name@email.com", Password = "123456789"};
             var response = await Client.PostAsJsonAsync("/api/auth/signup", payload);
             response.StatusCode.Should().Be(HttpStatusCode.Conflict);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -76,7 +76,7 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task BadReqestIfTheEmailIsNull()
         {
-            var payload = new LoginBindingModel { Email = " " };
+            var payload = new LoginBindingModel {Email = " "};
             var response = await Client.PostAsJsonAsync("/api/auth/login", payload);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -86,7 +86,7 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task BadReqestIfThePasswordIsNull()
         {
-            var payload = new LoginBindingModel { Email = "name@email.com", Password = " " };
+            var payload = new LoginBindingModel {Email = "name@email.com", Password = " "};
             var response = await Client.PostAsJsonAsync("/api/auth/login", payload);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -96,7 +96,7 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task NotFoundIfTheUserDoesNotExist()
         {
-            var payload = new LoginBindingModel { Email = "names@email.com", Password = "password" };
+            var payload = new LoginBindingModel {Email = "names@email.com", Password = "password"};
             var response = await Client.PostAsJsonAsync("/api/auth/login", payload);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -106,10 +106,10 @@ namespace firenotes_api.Tests.Integration
         [Test, Order(102)]
         public async Task SuccessfulLoginWithExistingUser()
         {
-            var payload = new LoginBindingModel { Email = "name@email.com", Password = "12345678" };
+            var payload = new LoginBindingModel {Email = "name@email.com", Password = "12345678"};
             var response = await Client.PostAsJsonAsync("/api/auth/login", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            
+
             var user = await response.Content.ReadAsJsonAsync<AuthViewModel>();
 
             user.Id.Should().NotBeNullOrWhiteSpace();
@@ -119,24 +119,24 @@ namespace firenotes_api.Tests.Integration
             user.LastName.Should().BeNullOrEmpty();
         }
 
-         #endregion
+        #endregion
 
         #region ForgotPassword
-        
+
         [Test]
         public async Task ForgotPassword_Should_ReturnnNotFound_When_TheEmailIsNonExistent()
         {
-            var payload = new LoginBindingModel { Email = "non-existent@email.com" };
+            var payload = new LoginBindingModel {Email = "non-existent@email.com"};
             var response = await Client.PostAsJsonAsync("/api/auth/forgot-password", payload);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var responseString = await response.Content.ReadAsStringAsync();
             responseString.Should().Be("A user with that email address doesn't exist.");
         }
-        
+
         [Test]
         public async Task ForgotPassword_Should_ReturnnOk_When_TheEmailIsExists()
         {
-            var payload = new LoginBindingModel { Email = "name@email.com" };
+            var payload = new LoginBindingModel {Email = "name@email.com"};
             var response = await Client.PostAsJsonAsync("/api/auth/forgot-password", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -160,7 +160,8 @@ namespace firenotes_api.Tests.Integration
         public async Task ResetPassword_Should_ReturnOk_When_TheDataIsComplete()
         {
             var token = Helpers.GenerateToken("email", "name@email.com");
-            var payload = new ResetPasswordBindingModel {Token = token, Password = "12345678", ConfirmPassword = "12345678"};
+            var payload =
+                new ResetPasswordBindingModel {Token = token, Password = "12345678", ConfirmPassword = "12345678"};
             var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
