@@ -15,13 +15,13 @@ namespace firenotes_api.Controllers
     {
         private readonly INoteService _noteService;
         private readonly IMapper _mapper;
-        
+
         public NotesController(IMapper mapper, INoteService noteService)
         {
             _mapper = mapper;
             _noteService = noteService;
         }
-        
+
         // GET api/notes
         [Route(""), HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] NoteQueryModel query)
@@ -30,7 +30,7 @@ namespace firenotes_api.Controllers
             var notes = await _noteService.GetNotes(callerId, query);
             return Ok(_mapper.Map<List<NoteViewModel>>(notes));
         }
-        
+
         // GET api/notes/:id
         [Route("{id}"), HttpGet]
         public async Task<IActionResult> GetOne(string id)
@@ -42,7 +42,7 @@ namespace firenotes_api.Controllers
             {
                 return NotFound("Sorry, you either have no access to the note requested or it doesn't exist.");
             }
-            
+
             return Ok(_mapper.Map<NoteViewModel>(note));
         }
 
@@ -55,10 +55,12 @@ namespace firenotes_api.Controllers
             {
                 return BadRequest("The payload must not be null.");
             }
+
             if (string.IsNullOrWhiteSpace(data.Title))
             {
                 return BadRequest("A title is required.");
             }
+
             var note = new Note
             {
                 Owner = callerId,
@@ -69,10 +71,10 @@ namespace firenotes_api.Controllers
                 IsFavorited = false
             };
             await _noteService.Add(note);
-            
+
             return Ok(_mapper.Map<NoteViewModel>(note));
         }
-        
+
         // PUT api/notes/:id
         [Route("{id}"), HttpPut]
         public async Task<IActionResult> Update(string id, [FromBody] NoteBindingModel data)
@@ -83,27 +85,29 @@ namespace firenotes_api.Controllers
             {
                 return NotFound("Sorry, you either have no access to the note requested or it doesn't exist.");
             }
+
             if (data == null)
             {
                 return Ok(_mapper.Map<NoteViewModel>(note));
             }
+
             await _noteService.Update(id, callerId, data);
             note = await _noteService.GetNote(id, callerId);
-            
+
             return Ok(_mapper.Map<NoteViewModel>(note));
         }
-        
+
         // DELETE api/notes/:id
         [Route("{id}"), HttpDelete]
         public async Task<IActionResult> Remove(string id)
         {
             var callerId = HttpContext.Items["id"].ToString();
             await _noteService.Delete(id, callerId);
-           
+
 
             return Ok("Note successfully removed.");
         }
-        
+
         // POST api/notes/:id/favorite
         [Route("{id}/favorite"), HttpPost]
         public async Task<IActionResult> Favorite(string id)
@@ -114,12 +118,13 @@ namespace firenotes_api.Controllers
             {
                 return NotFound("Sorry, you either have no access to the note requested or it doesn't exist.");
             }
+
             await _noteService.SetFavorite(id, callerId);
             note = await _noteService.GetNote(id, callerId);
-            
+
             return Ok(_mapper.Map<NoteViewModel>(note));
         }
-        
+
         // POST api/notes/:id/unfavorite
         [Route("{id}/unfavorite"), HttpPost]
         public async Task<IActionResult> UnFavorite(string id)
@@ -130,9 +135,10 @@ namespace firenotes_api.Controllers
             {
                 return NotFound("Sorry, you either have no access to the note requested or it doesn't exist.");
             }
+
             await _noteService.SetUnFavorite(id, callerId);
             note = await _noteService.GetNote(id, callerId);
-            
+
             return Ok(_mapper.Map<NoteViewModel>(note));
         }
     }
