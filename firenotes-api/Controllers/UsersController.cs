@@ -20,7 +20,7 @@ namespace firenotes_api.Controllers
             _emailService = emailService;
             _userService = userService;
         }
-        
+
         // POST api/users/:id/archive
         [Route("{id}/archive"), HttpPost]
         public async Task<IActionResult> ArchiveUser(string id)
@@ -37,10 +37,10 @@ namespace firenotes_api.Controllers
             var email = EmailTemplates.GetArchivedAccountEmail();
             await _emailService.SendAsync(user.Email, "Archived Account", email);
             _logger.LogInformation("Forgot password email sent successfully.");
-            
+
             return Ok();
         }
-        
+
         // PUT api/users/:id
         [Route("{id}"), HttpPut]
         public async Task<IActionResult> Update(string id, [FromBody] UserBindingModel bm)
@@ -53,7 +53,7 @@ namespace firenotes_api.Controllers
             }
 
             await _userService.Update(id, bm);
-            
+
             return Ok("Profile successfully updated.");
         }
     }

@@ -15,15 +15,15 @@ namespace firenotes_api.Tests.Integration
         [OneTimeSetUp]
         public async Task SetUp()
         {
-            var mongoClient = new MongoClient("mongodb://localhost:27017/");		
+            var mongoClient = new MongoClient("mongodb://localhost:27017/");
             mongoClient.DropDatabase("firenotes-test-db");
-            
+
             string fullPath = Path.GetFullPath("./../../../../.env");
             DotEnv.Config(false, fullPath);
 
             await CreateDefaultAuthUser();
         }
-        
+
         private async Task CreateDefaultAuthUser()
         {
             StringContent stringContent = new StringContent(
