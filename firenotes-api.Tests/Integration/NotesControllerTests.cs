@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 using AspNetCore.Http.Extensions;
@@ -84,7 +85,7 @@ namespace firenotes_api.Tests.Integration
             note.Title.Should().Be("Title");
             note.Details.Should().Be("Note details");
             note.Tags.Count.Should().Be(0);
-            note.Created.ToString().Should().NotBeNullOrWhiteSpace();
+            note.Created.ToString(CultureInfo.InvariantCulture).Should().NotBeNullOrWhiteSpace();
             note.IsFavorited.Should().BeFalse();
         }
 
