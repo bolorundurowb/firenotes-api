@@ -10,14 +10,14 @@ namespace firenotes_api.Services
     public class UserService : IUserService
     {
         private readonly IMongoDatabase _mongoDatabase;
-        
+
         public UserService()
         {
             var dbPath = Config.DbPath;
             var mongoClient = new MongoClient(dbPath);
-            _mongoDatabase = mongoClient.GetDatabase(Startup.DatabaseName);
+            _mongoDatabase = mongoClient.GetDatabase(Config.DbName);
         }
-        
+
         public async Task<User> GetUser(string id)
         {
             var usersCollection = _mongoDatabase.GetCollection<User>("users");
@@ -43,16 +43,17 @@ namespace firenotes_api.Services
             var filter = filterBuilder.Eq("_id", id);
             var updateBuilder = Builders<User>.Update;
             var update = updateBuilder.Set("IsArchived", false);
-            
+
             if (!string.IsNullOrWhiteSpace(user.FirstName))
             {
                 update = update.Set("FirstName", user.FirstName);
             }
+
             if (!string.IsNullOrWhiteSpace(user.LastName))
             {
                 update = update.Set("LastName", user.LastName);
             }
-            
+
             await usersCollection.UpdateOneAsync(filter, update);
         }
 
@@ -61,7 +62,7 @@ namespace firenotes_api.Services
             var usersCollection = _mongoDatabase.GetCollection<User>("users");
             var filterBuilder = Builders<User>.Filter;
             var filter = filterBuilder.Eq("Email", email);
-                
+
             var updateBuilder = Builders<User>.Update;
             var update = updateBuilder.Set("Password", password);
 

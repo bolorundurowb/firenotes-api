@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
 using firenotes_api.Models.Binding;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
 namespace firenotes_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]"), Authorize]
     public class UsersController : Controller
     {
         private readonly ILogger _logger;

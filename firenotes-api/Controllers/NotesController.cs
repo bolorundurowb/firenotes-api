@@ -6,11 +6,12 @@ using firenotes_api.Interfaces;
 using firenotes_api.Models.Binding;
 using firenotes_api.Models.Data;
 using firenotes_api.Models.View;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace firenotes_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]"), Authorize]
     public class NotesController : Controller
     {
         private readonly INoteService _noteService;

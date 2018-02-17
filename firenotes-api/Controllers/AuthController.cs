@@ -9,11 +9,12 @@ using Microsoft.AspNetCore.Http;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
 using firenotes_api.Models.Binding;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
 namespace firenotes_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]"), AllowAnonymous]
     public class AuthController : Controller
     {
         private readonly ILogger _logger;
@@ -21,14 +22,15 @@ namespace firenotes_api.Controllers
         private readonly IUserService _userService;
         private readonly IEmailService _emailService;
 
-        public AuthController(IMapper mapper, ILogger<AuthController> logger, IEmailService emailService, IUserService userService)
+        public AuthController(IMapper mapper, ILogger<AuthController> logger, IEmailService emailService,
+            IUserService userService)
         {
             _logger = logger;
             _mapper = mapper;
             _userService = userService;
             _emailService = emailService;
         }
-        
+
         // POST api/auth/login
         [Route("login"), HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginBindingModel data)
@@ -37,7 +39,7 @@ namespace firenotes_api.Controllers
             {
                 return BadRequest("The payload must not be null.");
             }
-            
+
             if (string.IsNullOrWhiteSpace(data.Email))
             {
                 return BadRequest("An email address is required.");
@@ -49,7 +51,7 @@ namespace firenotes_api.Controllers
             }
 
             var user = await _userService.GetUserByEmail(data.Email);
-            
+
             if (user == null)
             {
                 return NotFound("A user with that email address doesn't exist.");
@@ -65,7 +67,7 @@ namespace firenotes_api.Controllers
                 return Unauthorized();
             }
 
-            var token = Helpers.GenerateToken("id", user.Id);
+            var token = Helpers.GenerateAuthToken(user);
             var result = _mapper.Map<AuthViewModel>(user);
             result.Token = token;
             return Ok(result);
@@ -79,7 +81,7 @@ namespace firenotes_api.Controllers
             {
                 return BadRequest("The payload must not be null.");
             }
-            
+
             if (string.IsNullOrWhiteSpace(data.Email))
             {
                 return BadRequest("An email address is required.");
@@ -110,8 +112,8 @@ namespace firenotes_api.Controllers
 
             var email = EmailTemplates.GetWelcomeEmail();
             await _emailService.SendAsync(data.Email, "Welcome", email);
-             _logger.LogInformation("Welcome email sent uccessfully.");
-            
+            _logger.LogInformation("Welcome email sent uccessfully.");
+
             user = new User
             {
                 FirstName = data.FirstName,
@@ -121,9 +123,11 @@ namespace firenotes_api.Controllers
             };
 
             await _userService.Add(user);
-            var token = Helpers.GenerateToken("id", user.Id);
             var result = _mapper.Map<AuthViewModel>(user);
+            
+            var token = Helpers.GenerateAuthToken(user);
             result.Token = token;
+            
             return Ok(result);
         }
 
@@ -142,15 +146,18 @@ namespace firenotes_api.Controllers
             }
 
             var user = await _userService.GetUserByEmail(bm.Email);
-            
+
             if (user == null)
             {
                 return NotFound("A user with that email address doesn't exist.");
             }
 
             var token = Helpers.GenerateToken("email", bm.Email, 12);
-            var email = EmailTemplates.GetForgotPasswordEmail($"{Config.FrontEndUrl}/auth/reset-password?token={token}");
+            
+            var email = EmailTemplates.GetForgotPasswordEmail(
+                $"{Config.FrontEndUrl}/auth/reset-password?token={token}");
             await _emailService.SendAsync(bm.Email, "Forgot Password", email);
+            
             _logger.LogInformation("Forgot password email sent successfully.");
 
             return Ok("Your password reset email has been sent.");
@@ -203,8 +210,10 @@ namespace firenotes_api.Controllers
                 }
 
                 await _userService.SetPassword(emailAddress, bm.Password);
+                
                 var email = EmailTemplates.GetResetPasswordEmail(user.FirstName);
                 await _emailService.SendAsync(user.Email, "Password Reset", email);
+                
                 _logger.LogInformation("Forgot password email sent successfully.");
             }
             catch (Exception e)
@@ -212,7 +221,7 @@ namespace firenotes_api.Controllers
                 Console.WriteLine(e);
                 throw;
             }
-                
+
             return Ok("The password has been updated.");
         }
     }

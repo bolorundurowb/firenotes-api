@@ -16,7 +16,7 @@ namespace firenotes_api.Services
         {
             var dbPath = Config.DbPath;
             var mongoClient = new MongoClient(dbPath);
-            _mongoDatabase = mongoClient.GetDatabase(Startup.DatabaseName);
+            _mongoDatabase = mongoClient.GetDatabase(Config.DbName);
         }
         
         public async Task<List<Note>> GetNotes(string owner, NoteQueryModel query)
