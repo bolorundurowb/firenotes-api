@@ -17,13 +17,13 @@ namespace firenotes_api.Tests.Integration
         [SetUp]
         public void SetUp()
         {
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("x-access-token", Token);
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {Token}");
         }
 
         [TearDown]
         public void TearDown()
         {
-            Client.DefaultRequestHeaders.Remove("x-access-token");
+            Client.DefaultRequestHeaders.Remove("Authorization");
         }
 
         #region Creation
