@@ -4,7 +4,6 @@ using AutoMapper;
 using dotenv.net.DependencyInjection.Extensions;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
-using firenotes_api.Middleware;
 using firenotes_api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -77,8 +76,6 @@ namespace firenotes_api
                 .AllowAnyOrigin()
                 .AllowCredentials()
             );
-
-            app.UseAuthenticationMiddleware();
             
             app.UseMvc();
         }
