@@ -2,7 +2,7 @@
 
 namespace firenotes_api.Configuration
 {
-    public class Config
+    public static class Config
     {
         public static string DbPath => Environment.GetEnvironmentVariable("MONGO_URL");
 
@@ -21,5 +21,9 @@ namespace firenotes_api.Configuration
         public static string ServiceEmail => Environment.GetEnvironmentVariable("SERVICE_EMAIL");
 
         public static string DbName => Environment.GetEnvironmentVariable("DBNAME");
+
+        public static string Issuer => "Invenio Technologies";
+        
+        public static string Audience => "https://firenotes-api.herokuapp.com";
     }
 }
