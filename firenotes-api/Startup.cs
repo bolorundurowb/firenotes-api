@@ -36,7 +36,7 @@ namespace firenotes_api
             
             // read the environment vars
             var envFile = _environment.IsDevelopment() ? ".env" : "test.env";
-            bool throwOnError = !_environment.IsProduction();
+            bool throwOnError = _environment.IsDevelopment();
             services.AddEnv(builder =>
             {
                 builder
