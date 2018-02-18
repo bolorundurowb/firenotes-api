@@ -76,6 +76,8 @@ namespace firenotes_api
                 .AllowAnyOrigin()
                 .AllowCredentials()
             );
+
+            app.UseAuthentication();
             
             app.UseMvc();
         }

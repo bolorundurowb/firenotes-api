@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
@@ -26,7 +28,7 @@ namespace firenotes_api.Controllers
         [Route("{id}/archive"), HttpPost]
         public async Task<IActionResult> ArchiveUser(string id)
         {
-            var callerId = HttpContext.Items["id"].ToString();
+            var callerId = GetIdFromClaims();
 
             if (callerId != id)
             {
@@ -46,7 +48,7 @@ namespace firenotes_api.Controllers
         [Route("{id}"), HttpPut]
         public async Task<IActionResult> Update(string id, [FromBody] UserBindingModel bm)
         {
-            var callerId = HttpContext.Items["id"].ToString();
+            var callerId = GetIdFromClaims();
 
             if (callerId != id)
             {
@@ -56,6 +58,12 @@ namespace firenotes_api.Controllers
             await _userService.Update(id, bm);
 
             return Ok("Profile successfully updated.");
+        }
+
+        private string GetIdFromClaims()
+        {
+            var identity = User.Identity as ClaimsIdentity;
+            return identity?.Claims.FirstOrDefault(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
         }
     }
 }

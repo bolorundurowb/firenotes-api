@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using firenotes_api.Interfaces;
@@ -27,7 +29,8 @@ namespace firenotes_api.Controllers
         [Route(""), HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] NoteQueryModel query)
         {
-            var callerId = HttpContext.Items["id"].ToString();
+            var callerId = GetIdFromClaims();
+            
             var notes = await _noteService.GetNotes(callerId, query);
             return Ok(_mapper.Map<List<NoteViewModel>>(notes));
         }
@@ -36,7 +39,8 @@ namespace firenotes_api.Controllers
         [Route("{id}"), HttpGet]
         public async Task<IActionResult> GetOne(string id)
         {
-            var callerId = HttpContext.Items["id"].ToString();
+            var callerId = GetIdFromClaims();
+            
             var note = await _noteService.GetNote(id, callerId);
 
             if (note == null)
@@ -51,7 +55,8 @@ namespace firenotes_api.Controllers
         [Route(""), HttpPost]
         public async Task<IActionResult> Create([FromBody] NoteBindingModel data)
         {
-            var callerId = HttpContext.Items["id"].ToString();
+            var callerId = GetIdFromClaims();
+            
             if (data == null)
             {
                 return BadRequest("The payload must not be null.");
@@ -80,7 +85,8 @@ namespace firenotes_api.Controllers
         [Route("{id}"), HttpPut]
         public async Task<IActionResult> Update(string id, [FromBody] NoteBindingModel data)
         {
-            var callerId = HttpContext.Items["id"].ToString();
+            var callerId = GetIdFromClaims();
+            
             var note = await _noteService.GetNote(id, callerId);
             if (note == null)
             {
@@ -102,7 +108,8 @@ namespace firenotes_api.Controllers
         [Route("{id}"), HttpDelete]
         public async Task<IActionResult> Remove(string id)
         {
-            var callerId = HttpContext.Items["id"].ToString();
+            var callerId = GetIdFromClaims();
+            
             await _noteService.Delete(id, callerId);
 
 
@@ -113,7 +120,8 @@ namespace firenotes_api.Controllers
         [Route("{id}/favorite"), HttpPost]
         public async Task<IActionResult> Favorite(string id)
         {
-            var callerId = HttpContext.Items["id"].ToString();
+            var callerId = GetIdFromClaims();
+            
             var note = await _noteService.GetNote(id, callerId);
             if (note == null)
             {
@@ -130,7 +138,8 @@ namespace firenotes_api.Controllers
         [Route("{id}/unfavorite"), HttpPost]
         public async Task<IActionResult> UnFavorite(string id)
         {
-            var callerId = HttpContext.Items["id"].ToString();
+            var callerId = GetIdFromClaims();
+            
             var note = await _noteService.GetNote(id, callerId);
             if (note == null)
             {
@@ -141,6 +150,12 @@ namespace firenotes_api.Controllers
             note = await _noteService.GetNote(id, callerId);
 
             return Ok(_mapper.Map<NoteViewModel>(note));
+        }
+
+        private string GetIdFromClaims()
+        {
+            var identity = User.Identity as ClaimsIdentity;
+            return identity?.Claims.FirstOrDefault(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
         }
     }
 }

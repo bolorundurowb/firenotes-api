@@ -61,7 +61,7 @@ namespace firenotes_api.Configuration
                 Config.Issuer,
                 Config.Audience,
                 claims,
-                expires: DateTime.UtcNow.AddDays(60),
+                expires: DateTime.UtcNow.AddDays(30),
                 notBefore: DateTime.UtcNow,
                 signingCredentials: new SigningCredentials(
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Config.Secret)),
@@ -69,6 +69,5 @@ namespace firenotes_api.Configuration
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }
