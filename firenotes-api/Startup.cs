@@ -4,48 +4,62 @@ using AutoMapper;
 using dotenv.net.DependencyInjection.Extensions;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
-using firenotes_api.Middleware;
 using firenotes_api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace firenotes_api
 {
     public class Startup
     {
-        public static string DatabaseName;
-        
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            _environment = env;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
+        private IHostingEnvironment _environment;
         
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
-            {
-                builder
-                    .AllowAnyMethod()
-                    .AllowAnyOrigin()
-                    .AllowCredentials()
-                    .AllowAnyHeader();
-            }));
+            services.AddCors();
+            
             services.AddAutoMapper();
+            
             services.AddMvc();
             
-            // read in the environment vars
+            // read the environment vars
+            var envFile = _environment.IsDevelopment() ? ".env" : "test.env";
+            bool throwOnError = _environment.IsDevelopment();
             services.AddEnv(builder =>
             {
                 builder
                     .AddEncoding(Encoding.Default)
-                    .AddEnvFile(Path.GetFullPath(".env"))
-                    .AddThrowOnError(false);
+                    .AddEnvFile(Path.GetFullPath(envFile))
+                    .AddThrowOnError(throwOnError);
             });
+            
+            // add authentication
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(jwtBearerOptions =>
+                {
+                    jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateActor = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Config.Issuer,
+                        ValidAudience = Config.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Config.Secret))
+                    };
+                });
 
             // register the services
             services.AddScoped<INoteService, NoteService>();
@@ -54,24 +68,16 @@ namespace firenotes_api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            DatabaseName = Config.DbName;
-            
-            if (env.IsDevelopment())
-            {
-                DatabaseName = "firenotes-dev-db";
-                app.UseDeveloperExceptionPage();
-            }
+            app.UseCors(options => options
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowAnyOrigin()
+                .AllowCredentials()
+            );
 
-            if (env.IsEnvironment("test"))
-            {
-                DatabaseName = "firenotes-test-db";
-            }
-
-            app.UseCors("CorsPolicy");
-
-            app.UseAuthenticationMiddleware();
+            app.UseAuthentication();
             
             app.UseMvc();
         }

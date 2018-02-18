@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using firenotes_api.Models.Data;
 using JWT;
 using JWT.Algorithms;
 using JWT.Serializers;
+using Microsoft.IdentityModel.Tokens;
 
 namespace firenotes_api.Configuration
 {
@@ -41,6 +46,28 @@ namespace firenotes_api.Configuration
             IJwtDecoder decoder = new JwtDecoder(serializer, validator, urlEncoder);
 
             return decoder.DecodeToObject<IDictionary<string, string>>(token, Config.Secret, true);
+        }
+        
+        internal static string GenerateAuthToken(User user)
+        {
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var token = new JwtSecurityToken
+            (
+                Config.Issuer,
+                Config.Audience,
+                claims,
+                expires: DateTime.UtcNow.AddDays(30),
+                notBefore: DateTime.UtcNow,
+                signingCredentials: new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Config.Secret)),
+                    SecurityAlgorithms.HmacSha256)
+            );
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
