@@ -189,11 +189,11 @@ namespace firenotes_api.Tests.Unit.Controllers
             message.Should().Be("The passwords must match.");
         }
 
-        [Test]
+        [Test, Ignore("Hid the implementation")]
         public async Task ResetPassword_BadRequest_When()
         {
             Environment.SetEnvironmentVariable("SECRET", "xxxx");
-            var token = Helpers.GenerateToken("id", "xxxx", 10);
+            var token = string.Empty;
 
             var userService = new Mock<IUserService>();
             var emailService = new Mock<IEmailService>();
