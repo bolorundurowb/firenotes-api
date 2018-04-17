@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using AutoMapper;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -67,7 +68,7 @@ namespace firenotes_api.Controllers
                 return Unauthorized();
             }
 
-            var token = Helpers.GenerateAuthToken(user);
+            var token = Helpers.GetToken(user, 48);
             var result = _mapper.Map<AuthViewModel>(user);
             result.Token = token;
             return Ok(result);
@@ -125,7 +126,7 @@ namespace firenotes_api.Controllers
             await _userService.Add(user);
             var result = _mapper.Map<AuthViewModel>(user);
             
-            var token = Helpers.GenerateAuthToken(user);
+            var token = Helpers.GetToken(user, 48);
             result.Token = token;
             
             return Ok(result);
@@ -152,15 +153,27 @@ namespace firenotes_api.Controllers
                 return NotFound("A user with that email address doesn't exist.");
             }
 
-            var token = Helpers.GenerateToken("email", bm.Email, 12);
+            var token = Helpers.GetToken(user, 12, TokenType.Reset);
             
             var email = EmailTemplates.GetForgotPasswordEmail(
                 $"{Config.FrontEndUrl}/auth/reset-password?token={token}");
-            await _emailService.SendAsync(bm.Email, "Forgot Password", email);
-            
-            _logger.LogInformation("Forgot password email sent successfully.");
+            var response = await _emailService.SendAsync(bm.Email, "Forgot Password", email);
 
-            return Ok("Your password reset email has been sent.");
+            if (response.IsSuccessful)
+            {
+                _logger.LogInformation("Forgot password email sent successfully.");
+                return Ok(new GenericViewModel
+                {
+                    Message = "Your password reset email has been sent."
+                });
+            }
+
+            _logger.LogError("The email was not sent successfully.");
+            _logger.LogError(response.ErrorException, response.ErrorMessage);
+            return StatusCode((int) HttpStatusCode.InternalServerError, new GenericViewModel
+            {
+                Message = "An error occurred when sending the recovery email."
+            });
         }
 
         // POST api/auth/reset-password
@@ -194,8 +207,7 @@ namespace firenotes_api.Controllers
 
             try
             {
-                var json = Helpers.DecodeToken(bm.Token);
-                var emailAddress = json.FirstOrDefault(x => x.Key == "email").Value;
+                var emailAddress = Helpers.GetResetTokenUserData(bm.Token);
 
                 if (string.IsNullOrWhiteSpace(emailAddress))
                 {
@@ -211,18 +223,34 @@ namespace firenotes_api.Controllers
 
                 await _userService.SetPassword(emailAddress, bm.Password);
                 
+                // send notification email
                 var email = EmailTemplates.GetResetPasswordEmail(user.FirstName);
-                await _emailService.SendAsync(user.Email, "Password Reset", email);
-                
-                _logger.LogInformation("Forgot password email sent successfully.");
+                var response = await _emailService.SendAsync(user.Email, "Password Reset", email);
+
+                if (response.IsSuccessful)
+                {
+                    _logger.LogInformation("Forgot password email sent successfully.");
+                }
+                else
+                {
+                    _logger.LogError("Forgot password email was not sent successfully.");
+                    _logger.LogError(response.ErrorException, response.ErrorMessage);
+                }
+
+                return Ok(new GenericViewModel
+                {
+                    Message = "The password has been updated."
+                });
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
-            }
+                _logger.LogError(e, "An error occurred when decoding the reset token");
 
-            return Ok("The password has been updated.");
+                return StatusCode((int) HttpStatusCode.InternalServerError, new GenericViewModel
+                {
+                    Message = e.Message
+                });
+            }
         }
     }
 }
