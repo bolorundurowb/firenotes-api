@@ -1,73 +1,74 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using firenotes_api.Models.Data;
-using JWT;
-using JWT.Algorithms;
-using JWT.Serializers;
 using Microsoft.IdentityModel.Tokens;
 
 namespace firenotes_api.Configuration
 {
     public static class Helpers
     {
-        public static string GenerateToken(string key, string data, int duration = 48)
+        internal static string GetToken(User user, int duration = 24, TokenType type = TokenType.Auth)
         {
-            IDateTimeProvider provider = new UtcDateTimeProvider();
-            var expiry = provider.GetNow().AddHours(duration);
-            var unixEpoch = JwtValidator.UnixEpoch; 
-            var secondsSinceEpoch = Math.Round((expiry - unixEpoch).TotalSeconds);
-            
-            var payload = new Dictionary<string, object>
+            Claim[] claims;
+
+            if (type == TokenType.Auth)
             {
-                { key, data },
-                { "exp", secondsSinceEpoch }
-            };
-            var secret = Config.Secret;
-            
-            IJwtAlgorithm algorithm = new HMACSHA256Algorithm();
-            IJsonSerializer serializer = new JsonNetSerializer();
-            IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
-            IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
-
-            var token = encoder.Encode(payload, secret);
-            
-            return token;
-        }
-
-        internal static IDictionary<string, string> DecodeToken(string token)
-        {
-            IJsonSerializer serializer = new JsonNetSerializer();
-            IDateTimeProvider provider = new UtcDateTimeProvider();
-            IJwtValidator validator = new JwtValidator(serializer, provider);
-            IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
-            IJwtDecoder decoder = new JwtDecoder(serializer, validator, urlEncoder);
-
-            return decoder.DecodeToObject<IDictionary<string, string>>(token, Config.Secret, true);
-        }
-        
-        internal static string GenerateAuthToken(User user)
-        {
-            var claims = new[]
+                claims = new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("id", user.Id.ToString()) 
+                };
+            }
+            else
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+                claims = new[]
+                {
+                    new Claim("email", user.Email)
+                };
+            }
 
             var token = new JwtSecurityToken
             (
                 Config.Issuer,
                 Config.Audience,
                 claims,
-                expires: DateTime.UtcNow.AddDays(30),
+                expires: DateTime.UtcNow.AddHours(duration),
                 notBefore: DateTime.UtcNow,
                 signingCredentials: new SigningCredentials(
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Config.Secret)),
                     SecurityAlgorithms.HmacSha256)
             );
+
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        internal static int GetAuthUserData(ClaimsPrincipal claimsPrincipal)
+        {
+            if (!(claimsPrincipal.Identity is ClaimsIdentity identity))
+            {
+                throw new Exception("Usre identity could not be retrieved.");
+            }
+
+            var id = identity.Claims.First(x => x.Type == "id").Value;
+            return int.Parse(id);
+        }
+        
+        internal static string GetResetTokenUserData(string token)
+        {
+            var securityTokenHandler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = securityTokenHandler.ReadJwtToken(token);
+            return jwtSecurityToken?.Claims?.FirstOrDefault(x => x.Type == "email")?.Value;
+        }
+    }
+
+    internal enum TokenType
+    {
+        Undefined = 0,
+        Auth = 1,
+        Reset = 2
     }
 }
