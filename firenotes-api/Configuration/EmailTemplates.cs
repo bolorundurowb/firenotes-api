@@ -47,7 +47,7 @@ namespace firenotes_api.Configuration
         private static string GetTemplate(string templateName)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var fileNamespace = "firenotes_api.Configuration.EmailTemplates" + templateName + ".hbs";
+            var fileNamespace = "firenotes_api.Configuration.EmailTemplates." + templateName + ".hbs";
             using (var stream = assembly.GetManifestResourceStream(fileNamespace))
             {
                 if (stream == null)
