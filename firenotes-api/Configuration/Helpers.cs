@@ -10,7 +10,7 @@ namespace firenotes_api.Configuration
 {
     public static class Helpers
     {
-        internal static string GetToken(User user, int duration = 24, TokenType type = TokenType.Auth)
+        public static string GetToken(User user, int duration = 24, TokenType type = TokenType.Auth)
         {
             Claim[] claims;
 
@@ -65,7 +65,7 @@ namespace firenotes_api.Configuration
         }
     }
 
-    internal enum TokenType
+    public enum TokenType
     {
         Undefined = 0,
         Auth = 1,

@@ -5,6 +5,7 @@ using firenotes_api.Configuration;
 using firenotes_api.Controllers;
 using firenotes_api.Interfaces;
 using firenotes_api.Models.Binding;
+using firenotes_api.Models.Data;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -189,11 +190,11 @@ namespace firenotes_api.Tests.Unit.Controllers
             message.Should().Be("The passwords must match.");
         }
 
-        [Test, Ignore("Hid the implementation")]
+        [Test]
         public async Task ResetPassword_BadRequest_When()
         {
             Environment.SetEnvironmentVariable("SECRET", "xxxx");
-            var token = string.Empty;
+            var token = Helpers.GetToken(new User() {Id = "xxxx"}, 10, TokenType.Reset);
 
             var userService = new Mock<IUserService>();
             var emailService = new Mock<IEmailService>();

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AspNetCore.Http.Extensions;
 using firenotes_api.Configuration;
 using firenotes_api.Models.Binding;
+using firenotes_api.Models.Data;
 using firenotes_api.Models.View;
 using FluentAssertions;
 using NUnit.Framework;
@@ -150,7 +151,7 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task ResetPassword_Should_ReturnBadRequest_When_TheDecodedEmailDoesNotExist()
         {
-            var token = Helpers.GenerateToken("email", "unknown@email.com");
+            var token = Helpers.GetToken(new User() {Email = "unknown@email.com"}, 12, TokenType.Reset);
             var payload = new ResetPasswordBindingModel {Token = token, Password = "xxxx", ConfirmPassword = "xxxx"};
             var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -159,7 +160,7 @@ namespace firenotes_api.Tests.Integration
         [Test]
         public async Task ResetPassword_Should_ReturnOk_When_TheDataIsComplete()
         {
-            var token = Helpers.GenerateToken("email", "name@email.com");
+            var token = Helpers.GetToken(new User() {Email = "name@email.com"}, 12, TokenType.Reset);
             var payload =
                 new ResetPasswordBindingModel {Token = token, Password = "12345678", ConfirmPassword = "12345678"};
             var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
