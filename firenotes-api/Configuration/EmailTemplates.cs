@@ -4,9 +4,9 @@ using HandlebarsDotNet;
 
 namespace firenotes_api.Configuration
 {
-    public class EmailTemplates
+    public static class EmailTemplates
     {
-        public static string GetForgotPasswordEmail(string resetLink)
+        internal static string GetForgotPasswordEmail(string resetLink)
         {
             string templateName = "ForgotPassword";
             string handlebars = GetTemplate(templateName);
@@ -17,7 +17,7 @@ namespace firenotes_api.Configuration
             });
         }
 
-        public static string GetWelcomeEmail()
+        internal static string GetWelcomeEmail()
         {
             string templateName = "Welcome";
             string handlebars = GetTemplate(templateName);
@@ -25,7 +25,7 @@ namespace firenotes_api.Configuration
             return template(new {});
         }
 
-        public static string GetArchivedAccountEmail()
+        internal static string GetArchivedAccountEmail()
         {
             string templateName = "ArchivedAccount";
             string handlebars = GetTemplate(templateName);
@@ -33,7 +33,7 @@ namespace firenotes_api.Configuration
             return template(new {});
         }
 
-        public static string GetResetPasswordEmail(string firstname)
+        internal static string GetResetPasswordEmail(string firstname)
         {
             string templateName = "ResetPassword";
             string handlebars = GetTemplate(templateName);

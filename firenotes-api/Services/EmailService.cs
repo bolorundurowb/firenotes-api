@@ -1,33 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace firenotes_api.Services
 {
     public class EmailService : IEmailService
     {
-        public async Task SendAsync(string recipient, string subject, string payload)
+        public async Task<IRestResponse> SendAsync(string recipient, string subject, string payload)
         {
-            using (var client = new HttpClient { BaseAddress = new Uri(Config.MailgunBaseUri) })
+            var client = new RestClient
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(Encoding.ASCII.GetBytes(Config.MailgunApiKey)));
- 
-                var content = new FormUrlEncodedContent(new[]
-                {
-                    new KeyValuePair<string, string>("from", Config.MailgunSmtpLogin),
-                    new KeyValuePair<string, string>("to", recipient),
-                    new KeyValuePair<string, string>("subject", subject),
-                    new KeyValuePair<string, string>("text", payload)
-                });
- 
-                await client.PostAsync(Config.MailgunRequestUri, content).ConfigureAwait(false);
-            }
+                BaseUrl = new Uri(Config.MailgunBaseUri),
+                Authenticator = new HttpBasicAuthenticator("api", Config.MailgunApiKey)
+            };
+            var request = new RestRequest();
+            request.AddParameter("domain", Config.MailgunRequestUri, ParameterType.UrlSegment);
+            request.Resource = "{domain}/messages";
+            request.AddParameter("from", $"Firenotes Team <{Config.ServiceEmail}>");
+            request.AddParameter("to", recipient);
+            request.AddParameter("subject", subject);
+            request.AddParameter("html", payload);
+            request.Method = Method.POST;
+            return await Task.Run(() => client.Execute(request));
         }
     }
 }
