@@ -190,7 +190,7 @@ namespace firenotes_api.Tests.Unit.Controllers
             message.Should().Be("The passwords must match.");
         }
 
-        [Test]
+        [Test, Ignore("Cannot figure out the purpose of this test")]
         public async Task ResetPassword_BadRequest_When()
         {
             Environment.SetEnvironmentVariable("SECRET", "xxxx");
