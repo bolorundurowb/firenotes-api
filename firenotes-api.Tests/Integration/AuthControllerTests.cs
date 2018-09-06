@@ -166,7 +166,7 @@ namespace firenotes_api.Tests.Integration
             var response = await Client.PostAsJsonAsync("/api/auth/reset-password", payload);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseString = await response.Content.ReadAsStringAsync();
-            responseString.Should().Be("The password has been updated.");
+            responseString.Should().Be("{\"message\":\"The password has been updated.\"}");
         }
 
         #endregion
