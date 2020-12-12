@@ -8,22 +8,20 @@ using firenotes_api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace firenotes_api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
-            Configuration = configuration;
             _environment = env;
         }
 
-        private IConfiguration Configuration { get; }
-        private IHostingEnvironment _environment;
+        private readonly IWebHostEnvironment _environment;
         
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
