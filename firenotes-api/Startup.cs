@@ -1,42 +1,41 @@
 ﻿using System.IO;
 using System.Text;
+using System.Text.Json.Serialization;
 using AutoMapper;
-using dotenv.net.DependencyInjection.Extensions;
+using dotenv.net.DependencyInjection.Microsoft;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
 using firenotes_api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace firenotes_api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
-            Configuration = configuration;
             _environment = env;
         }
 
-        private IConfiguration Configuration { get; }
-        private IHostingEnvironment _environment;
+        private readonly IWebHostEnvironment _environment;
         
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
             
-            services.AddAutoMapper();
-            
-            services.AddMvc();
+            services.AddAutoMapper(typeof(Startup));
+            services.AddControllers()
+                .AddJsonOptions(x => { x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
             
             // read the environment vars
             var envFile = _environment.IsDevelopment() ? ".env" : "test.env";
-            bool throwOnError = _environment.IsDevelopment();
+            var throwOnError = _environment.IsDevelopment();
             services.AddEnv(builder =>
             {
                 builder
@@ -74,12 +73,12 @@ namespace firenotes_api
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowAnyOrigin()
-                .AllowCredentials()
             );
 
+            app.UseRouting();
             app.UseAuthentication();
-            
-            app.UseMvc();
+            app.UseAuthorization();
+            app.UseEndpoints(opts => opts.MapControllers());
         }
     }
 }
