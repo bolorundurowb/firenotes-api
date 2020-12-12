@@ -74,7 +74,6 @@ namespace firenotes_api
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowAnyOrigin()
-                .AllowCredentials()
             );
 
             app.UseRouting();
