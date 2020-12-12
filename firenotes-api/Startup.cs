@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using AutoMapper;
-using dotenv.net.DependencyInjection.Extensions;
+using dotenv.net.DependencyInjection.Microsoft;
 using firenotes_api.Configuration;
 using firenotes_api.Interfaces;
 using firenotes_api.Services;
@@ -30,13 +30,13 @@ namespace firenotes_api
         {
             services.AddCors();
             
-            services.AddAutoMapper();
+            services.AddAutoMapper(typeof(Startup));
             
             services.AddMvc();
             
             // read the environment vars
             var envFile = _environment.IsDevelopment() ? ".env" : "test.env";
-            bool throwOnError = _environment.IsDevelopment();
+            var throwOnError = _environment.IsDevelopment();
             services.AddEnv(builder =>
             {
                 builder
@@ -77,9 +77,9 @@ namespace firenotes_api
                 .AllowCredentials()
             );
 
+            app.UseRouting();
             app.UseAuthentication();
-            
-            app.UseMvc();
+            app.UseEndpoints(opts => opts.MapControllers());
         }
     }
 }

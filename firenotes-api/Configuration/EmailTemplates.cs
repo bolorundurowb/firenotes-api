@@ -8,8 +8,8 @@ namespace firenotes_api.Configuration
     {
         internal static string GetForgotPasswordEmail(string resetLink)
         {
-            string templateName = "ForgotPassword";
-            string handlebars = GetTemplate(templateName);
+            var templateName = "ForgotPassword";
+            var handlebars = GetTemplate(templateName);
             var template = Handlebars.Compile(handlebars);
             return template(new
             {
@@ -19,24 +19,24 @@ namespace firenotes_api.Configuration
 
         internal static string GetWelcomeEmail()
         {
-            string templateName = "Welcome";
-            string handlebars = GetTemplate(templateName);
+            var templateName = "Welcome";
+            var handlebars = GetTemplate(templateName);
             var template = Handlebars.Compile(handlebars);
             return template(new {});
         }
 
         internal static string GetArchivedAccountEmail()
         {
-            string templateName = "ArchivedAccount";
-            string handlebars = GetTemplate(templateName);
+            var templateName = "ArchivedAccount";
+            var handlebars = GetTemplate(templateName);
             var template = Handlebars.Compile(handlebars);
             return template(new {});
         }
 
         internal static string GetResetPasswordEmail(string firstname)
         {
-            string templateName = "ResetPassword";
-            string handlebars = GetTemplate(templateName);
+            var templateName = "ResetPassword";
+            var handlebars = GetTemplate(templateName);
             var template = Handlebars.Compile(handlebars);
             return template(new
             {

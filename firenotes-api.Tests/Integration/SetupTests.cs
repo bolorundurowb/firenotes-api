@@ -23,7 +23,7 @@ namespace firenotes_api.Tests.Integration
 
         private async Task CreateDefaultAuthUser()
         {
-            StringContent stringContent = new StringContent(
+            var stringContent = new StringContent(
                 "{ \"email\": \"default@email.com\", \"password\": \"12345678\" }",
                 Encoding.UTF8,
                 "application/json");
