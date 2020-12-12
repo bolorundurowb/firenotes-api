@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using System.Text.Json.Serialization;
 using AutoMapper;
 using dotenv.net.DependencyInjection.Microsoft;
 using firenotes_api.Configuration;
@@ -29,8 +30,8 @@ namespace firenotes_api
             services.AddCors();
             
             services.AddAutoMapper(typeof(Startup));
-            
-            services.AddMvc();
+            services.AddControllers()
+                .AddJsonOptions(x => { x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
             
             // read the environment vars
             var envFile = _environment.IsDevelopment() ? ".env" : "test.env";
@@ -76,6 +77,7 @@ namespace firenotes_api
 
             app.UseRouting();
             app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(opts => opts.MapControllers());
         }
     }
